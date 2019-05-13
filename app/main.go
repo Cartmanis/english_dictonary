@@ -53,7 +53,7 @@ func main() {
 		return
 	}
 	fmt.Println(token)
-	go RunRest()
+	RunRest(m)
 	if err := db.MigratorIndex(m); err != nil {
 		fmt.Println("[ERROR] не удалось проверить или добавить уникальный индекс для поля login. Ошибка:", err)
 		return

@@ -19,7 +19,8 @@ type MongoClient struct {
 }
 
 func NewStoreContext(url, dbName, login, pass string, interval time.Duration) (*MongoClient, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), interval*time.Second)
+	//ctx, cancel := context.WithTimeout(context.Background(), interval *time.Second)
+	ctx := context.Background()
 	auth := &options.Credential{Username: login, Password: pass}
 	auth.AuthSource = dbName
 	opts := options.ClientOptions{Auth: auth}
@@ -34,7 +35,7 @@ func NewStoreContext(url, dbName, login, pass string, interval time.Duration) (*
 	return &MongoClient{
 		client:     client,
 		ctx:        ctx,
-		cancelFunc: &cancel,
+		cancelFunc: nil,
 		db:         dbName,
 	}, nil
 }

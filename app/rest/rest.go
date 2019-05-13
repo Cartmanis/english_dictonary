@@ -1,34 +1,47 @@
 package rest
 
 import (
+	"english_dictonary/app/cmd/lg"
+	"english_dictonary/app/db"
+	"english_dictonary/app/provider_db"
 	"fmt"
 	"github.com/dgrijalva/jwt-go"
-	"github.com/gorilla/handlers"
-	"github.com/gorilla/mux"
+	"github.com/go-chi/chi"
+	"github.com/go-chi/render"
+	R "github.com/go-pkgz/rest"
+	"github.com/gorilla/sessions"
 	"net/http"
 	"os"
 	"strconv"
 	"time"
 )
 
-var mySiginKey = os.Getenv("SECRET_KEY")
+type Rest struct {
+	port  int
+	mongo *provider_db.MongoClient
+}
 
-func Run(port int) error {
-	fmt.Println("[INFO] рест сервер запускается на порту:", port)
-	r := mux.NewRouter()
+func NewRestService(port int, mongo *provider_db.MongoClient) *Rest {
+	return &Rest{
+		port:  port,
+		mongo: mongo,
+	}
+}
 
-	r.Handle("/", http.FileServer(http.Dir("./views")))
-	r.Handle("/status", NotImplemented).Methods("GET")
-	r.Handle("/products", NotImplemented).Methods("GET")
-	r.Handle("/products/{slug}/feedback", NotImplemented).Methods("POST")
+func (s *Rest) Run() error {
+	lg.Info("рест сервер запускается на порту:", s.port)
+	r := chi.NewRouter()
+
+	//r.Handle("/", http.FileServer(http.Dir("./views")))
+	r.Post("/auth", s.autharization)
 
 	//авторизация
-	r.Handle("/get-token", GetTokenHandler).Methods("GET")
+	//r.Get("/get-token", GetTokenHandler)
 
-	r.PathPrefix("/static/").Handler(http.StripPrefix("/static",
-		http.FileServer(http.Dir("./static"))))
+	//r.PathPrefix("/static/").Handler(http.StripPrefix("/static",
+	//	http.FileServer(http.Dir("./static"))))
 
-	return http.ListenAndServe(":"+strconv.Itoa(port), handlers.LoggingHandler(os.Stdout, r))
+	return http.ListenAndServe(":"+strconv.Itoa(s.port), r)
 }
 
 var NotImplemented = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -40,7 +53,7 @@ var GetTokenHandler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Reque
 	token.Header["admin"] = true
 	token.Header["name"] = "Logiiin"
 	token.Header["exp"] = time.Now().Add(time.Hour * 24).Unix()
-	tokenString, err := token.SignedString(mySiginKey)
+	tokenString, err := token.SignedString(os.Getenv("SECRET_KEY"))
 
 	if err != nil {
 		fmt.Println("[ERROR]: ", err)
@@ -49,3 +62,40 @@ var GetTokenHandler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Reque
 	}
 	w.Write([]byte(tokenString))
 })
+
+var store = sessions.NewCookieStore([]byte(os.Getenv("SECRET_KEY")))
+
+func (s *Rest) autharization(w http.ResponseWriter, r *http.Request) {
+	login, password, _ := r.BasicAuth()
+	// password := r.PostFormValue("password")
+	auth, id, err := db.AuthUser(login, password, s.mongo)
+	if err != nil {
+		SendErrorJSON(w, r, 500, "не удалось произвести авторизацию", err)
+		return
+	}
+	if !auth {
+		SendJSON(w, r, 403, R.JSON{"error": "не правильное имя пользователя или пароль"})
+		return
+	}
+	session, err := store.Get(r, "user_session")
+	if err != nil {
+		SendErrorJSON(w, r, 500, "не удалось получить сессию", err)
+		return
+	}
+	session.Values["user_id"] = id.(string)
+	if err := session.Save(r, w); err != nil {
+		SendErrorJSON(w, r, 500, "не удалось сохранить сессию", err)
+		return
+	}
+	SendJSON(w, r, 200, R.JSON{"login": login})
+}
+
+func SendJSON(w http.ResponseWriter, r *http.Request, status int, i interface{}) {
+	render.Status(r, status)
+	render.JSON(w, r, i)
+}
+
+func SendErrorJSON(w http.ResponseWriter, r *http.Request, httpStatusCode int, details string, err error) {
+	render.Status(r, httpStatusCode)
+	render.JSON(w, r, R.JSON{"error": err.Error(), "details": details})
+}

@@ -7,7 +7,8 @@ import (
 )
 
 const (
-	users = "users"
+	users           = "users"
+	noDocumentMongo = "mongo: no documents in result"
 )
 
 type User struct {
@@ -72,6 +73,9 @@ func AuthUser(login, pass string, m *provider_db.MongoClient) (bool, interface{}
 	filter := &Filter{login}
 	findUser := &User{}
 	if err := m.FindOne(filter, findUser, users); err != nil {
+		if err.Error() == noDocumentMongo {
+			return false, nil, nil
+		}
 		return false, nil, err
 	}
 	if !crypto.CompareHashPassword(findUser.Password, pass) {
