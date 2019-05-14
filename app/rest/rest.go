@@ -34,6 +34,8 @@ func (s *Rest) Run() error {
 
 	//r.Handle("/", http.FileServer(http.Dir("./views")))
 	r.Post("/auth", s.autharization)
+	r.Post("/login", s.login)
+	r.Post("/logout", s.logout)
 
 	//авторизация
 	//r.Get("/get-token", GetTokenHandler)
@@ -66,15 +68,34 @@ var GetTokenHandler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Reque
 var store = sessions.NewCookieStore([]byte(os.Getenv("SECRET_KEY")))
 
 func (s *Rest) autharization(w http.ResponseWriter, r *http.Request) {
+	session, err := store.Get(r, "user_session")
+	if err != nil {
+		SendErrorJSON(w, r, 500, "не удалось получить сессию", err)
+		return
+	}
+	id := session.Values["user_session"]
+	if id == nil {
+		SendErrorJSON(w, r, 403, "нет авторизации",
+			fmt.Errorf("пустая сессия"))
+		return
+	}
+	user, err := db.FindUserByIdUser(id.(string), s.mongo)
+	if err != nil {
+		SendErrorJSON(w, r, 403, "авторизация", err)
+		return
+	}
+	fmt.Println(user)
+}
+
+func (s *Rest) login(w http.ResponseWriter, r *http.Request) {
 	login, password, _ := r.BasicAuth()
-	// password := r.PostFormValue("password")
 	auth, id, err := db.AuthUser(login, password, s.mongo)
 	if err != nil {
 		SendErrorJSON(w, r, 500, "не удалось произвести авторизацию", err)
 		return
 	}
 	if !auth {
-		SendJSON(w, r, 403, R.JSON{"error": "не правильное имя пользователя или пароль"})
+		SendJSON(w, r, 403, R.JSON{"result": false})
 		return
 	}
 	session, err := store.Get(r, "user_session")
@@ -82,12 +103,30 @@ func (s *Rest) autharization(w http.ResponseWriter, r *http.Request) {
 		SendErrorJSON(w, r, 500, "не удалось получить сессию", err)
 		return
 	}
-	session.Values["user_id"] = id.(string)
+	store.Options.HttpOnly = true
+	store.Options.Secure = true
+	store.Options.MaxAge = 0
+	session.Values["user_session"] = id
 	if err := session.Save(r, w); err != nil {
 		SendErrorJSON(w, r, 500, "не удалось сохранить сессию", err)
 		return
 	}
-	SendJSON(w, r, 200, R.JSON{"login": login})
+	SendJSON(w, r, 200, R.JSON{"result": true})
+}
+
+func (s *Rest) logout(w http.ResponseWriter, r *http.Request) {
+	session, err := store.Get(r, "user_session")
+	if err != nil {
+		SendErrorJSON(w, r, 500, "не удалось удалить сессию", err)
+		return
+	}
+	//сбрасываем cookie
+	fmt.Println(session.Values["user_session"])
+	session.Values["user_session"] = nil
+	if err := session.Save(r, w); err != nil {
+		SendErrorJSON(w, r, 500, "не удалось удалить сессию", err)
+		return
+	}
 }
 
 func SendJSON(w http.ResponseWriter, r *http.Request, status int, i interface{}) {

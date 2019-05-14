@@ -4,6 +4,7 @@ import (
 	"english_dictonary/app/cmd/crypto"
 	"english_dictonary/app/provider_db"
 	"fmt"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 const (
@@ -22,16 +23,14 @@ type NewUser struct {
 	Password string
 }
 
-type Filter struct {
-	Login string
-}
-
 func InsertUser(login, pass string, m *provider_db.MongoClient) (interface{}, error) {
 	if m == nil {
 		return nil, fmt.Errorf("не иницилизированная база данных mongoDb")
 	}
-	filter := &Filter{login}
-	count, err := m.Count(filter, users)
+	type filter struct {
+		Login string
+	}
+	count, err := m.Count(&filter{login}, users)
 	if err != nil {
 		return nil, err
 	}
@@ -66,20 +65,44 @@ func MigratorIndex(m *provider_db.MongoClient) error {
 	return nil
 }
 
-func AuthUser(login, pass string, m *provider_db.MongoClient) (bool, interface{}, error) {
+func FindUserByIdUser(userId string, m *provider_db.MongoClient) (*User, error) {
 	if m == nil {
-		return false, nil, fmt.Errorf("не иницилизированная база данных mongoDb")
+		return nil, fmt.Errorf("не иницилизированная база данных mongoDb")
 	}
-	filter := &Filter{login}
-	findUser := &User{}
-	if err := m.FindOne(filter, findUser, users); err != nil {
-		if err.Error() == noDocumentMongo {
-			return false, nil, nil
-		}
-		return false, nil, err
+	type filter struct {
+		Id interface{} `bson:"_id"`
 	}
-	if !crypto.CompareHashPassword(findUser.Password, pass) {
-		return false, nil, nil
+	objectId, err := provider_db.GetObjectId(userId)
+	if err != nil {
+		return nil, err
 	}
-	return true, findUser.Id, nil
+	user := &User{}
+	if err := m.FindOne(&filter{objectId}, user, users); err != nil {
+		return nil, err
+	}
+	return user, nil
+}
+
+func AuthUser(login, pass string, m *provider_db.MongoClient) (bool, string, error) {
+	if m == nil {
+		return false, "", fmt.Errorf("не иницилизированная база данных mongoDb")
+	}
+	type filter struct {
+		Login string
+	}
+	listUser := make([]*User, 0)
+	if err := m.Find(&filter{login}, &listUser, users); err != nil {
+		return false, "", err
+	}
+	if len(listUser) == 0 {
+		return false, "", nil
+	}
+	if len(listUser) > 1 {
+		return false, "", fmt.Errorf("не возможно однозначно идентифицировать. "+
+			"Найдено более одного пользователя с login: %v", login)
+	}
+	if !crypto.CompareHashPassword(listUser[0].Password, pass) {
+		return false, "", nil
+	}
+	return true, listUser[0].Id.(primitive.ObjectID).String(), nil
 }
