@@ -1,9 +1,9 @@
 package db
 
 import (
-	"english_dictonary/app/cmd/crypto"
-	"english_dictonary/app/provider_db"
 	"fmt"
+	"github.com/cartmanis/english_dictonary/app/cmd/crypto"
+	"github.com/cartmanis/english_dictonary/app/provider_db"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
@@ -104,5 +104,5 @@ func AuthUser(login, pass string, m *provider_db.MongoClient) (bool, string, err
 	if !crypto.CompareHashPassword(listUser[0].Password, pass) {
 		return false, "", nil
 	}
-	return true, listUser[0].Id.(primitive.ObjectID).String(), nil
+	return true, listUser[0].Id.(primitive.ObjectID).Hex(), nil
 }
