@@ -1,10 +1,10 @@
 package rest
 
 import (
-	"english_dictonary/app/cmd/lg"
-	"english_dictonary/app/db"
-	"english_dictonary/app/provider_db"
 	"fmt"
+	"github.com/cartmanis/english_dictonary/app/cmd/lg"
+	"github.com/cartmanis/english_dictonary/app/db"
+	"github.com/cartmanis/english_dictonary/app/provider_db"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/render"
@@ -27,6 +27,8 @@ func NewRestService(port int, mongo *provider_db.MongoClient) *Rest {
 		mongo: mongo,
 	}
 }
+
+var store = sessions.NewCookieStore([]byte(os.Getenv("SECRET_KEY")))
 
 func (s *Rest) Run() error {
 	lg.Info("рест сервер запускается на порту:", s.port)
@@ -135,6 +137,7 @@ func (s *Rest) logout(w http.ResponseWriter, r *http.Request) {
 		SendErrorJSON(w, r, 500, "не удалось удалить сессию", err)
 		return
 	}
+	//http.Redirect(w,r, "localhost:" + strconv.Itoa(s.port) + "/login", 303)
 }
 
 func SendJSON(w http.ResponseWriter, r *http.Request, status int, i interface{}) {

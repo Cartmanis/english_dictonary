@@ -1,9 +1,9 @@
 package db
 
 import (
-	"english_dictonary/app/cmd/crypto"
-	"english_dictonary/app/provider_db"
 	"fmt"
+	"github.com/cartmanis/english_dictonary/app/cmd/crypto"
+	"github.com/cartmanis/english_dictonary/app/provider_db"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 

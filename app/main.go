@@ -4,6 +4,7 @@ import (
 	"english_dictonary/app/db"
 	"english_dictonary/app/provider_db"
 	"fmt"
+	"github.com/cartmanis/english_dictonary/app/provider_db"
 	"os"
 	"time"
 )
@@ -47,13 +48,26 @@ func main() {
 	}
 	defer m.Close()
 	go RunRest(m)
-	if err := db.MigratorIndex(m); err != nil {
-		fmt.Println("[ERROR] не удалось проверить или добавить уникальный индекс для поля login. Ошибка:", err)
-		return
-	}
 	for {
 		time.Sleep(10 * time.Minute)
 	}
+	//if err := db.MigratorIndex(m); err != nil {
+	//	fmt.Println("[ERROR] не удалось проверить или добавить уникальный индекс для поля login. Ошибка:", err)
+	//	return
+	//}
+	//id, err := db.InsertUser("cart", "5eu7veE&", m)
+	//if err != nil {
+	//	fmt.Println("[ERROR] не удалось добавить нового пользователя. Ошибка:",err)
+	//}
+	//fmt.Println(id)
+	//isAuth, id, err := db.AuthUser("mila", "5eu7ve", m)
+	//if err != nil {
+	//	fmt.Println("[ERROR] не удалось произвести авторизацию. Ошибка:", err)
+	//	return
+	//}
+	//if isAuth {
+	//	fmt.Println(id)
+	//}
 
 	//words := make([]interface{}, 0)
 	//words = append(words, &Word{En: "most", Ru:"наибольшее количество",Transcription: "мост"})

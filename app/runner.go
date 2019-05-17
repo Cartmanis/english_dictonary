@@ -1,9 +1,9 @@
 package main
 
 import (
-	"english_dictonary/app/provider_db"
-	"english_dictonary/app/rest"
 	"fmt"
+	"github.com/cartmanis/english_dictonary/app/provider_db"
+	"github.com/cartmanis/english_dictonary/app/rest"
 )
 
 const (
