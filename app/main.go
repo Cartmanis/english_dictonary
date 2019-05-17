@@ -1,10 +1,8 @@
 package main
 
 import (
-	"english_dictonary/app/db"
 	"english_dictonary/app/provider_db"
 	"fmt"
-	"github.com/cartmanis/english_dictonary/app/provider_db"
 	"os"
 	"time"
 )

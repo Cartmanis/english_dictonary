@@ -1,10 +1,10 @@
 package rest
 
 import (
+	"english_dictonary/app/cmd/lg"
+	"english_dictonary/app/db"
+	"english_dictonary/app/provider_db"
 	"fmt"
-	"github.com/cartmanis/english_dictonary/app/cmd/lg"
-	"github.com/cartmanis/english_dictonary/app/db"
-	"github.com/cartmanis/english_dictonary/app/provider_db"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/render"
@@ -48,10 +48,6 @@ func (s *Rest) Run() error {
 	return http.ListenAndServe(":"+strconv.Itoa(s.port), r)
 }
 
-var NotImplemented = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("Not Implemented"))
-})
-
 var GetTokenHandler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 	token := jwt.New(jwt.SigningMethodHS256)
 	token.Header["admin"] = true
@@ -66,8 +62,6 @@ var GetTokenHandler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Reque
 	}
 	w.Write([]byte(tokenString))
 })
-
-var store = sessions.NewCookieStore([]byte(os.Getenv("SECRET_KEY")))
 
 func (s *Rest) autharization(w http.ResponseWriter, r *http.Request) {
 	ok, id := s.isAuthSession(w, r)
