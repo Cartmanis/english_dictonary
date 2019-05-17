@@ -3,13 +3,18 @@ package rest
 import (
 	"english_dictonary/app/db"
 	"fmt"
+	"github.com/dgrijalva/jwt-go"
 	R "github.com/go-pkgz/rest"
 	"github.com/gorilla/sessions"
 	"net/http"
 	"os"
+	"time"
 )
 
-var store = sessions.NewCookieStore([]byte(os.Getenv("SECRET_KEY")))
+var (
+	secretKey = []byte(os.Getenv("SECRET_KEY"))
+	store     = sessions.NewCookieStore(secretKey)
+)
 
 func (s *Rest) autharization(w http.ResponseWriter, r *http.Request) {
 	ok, id := s.isAuthSession(w, r)
@@ -26,15 +31,19 @@ func (s *Rest) isAuthSession(w http.ResponseWriter, r *http.Request) (bool, stri
 	if err != nil {
 		return false, ""
 	}
-	id := session.Values["user_id"]
-	if id == nil {
+	token := session.Values["user_id"]
+	if token == nil {
 		return false, ""
 	}
-	_, err = db.FindUserByIdUser(id.(string), s.mongo)
+	id, err := verifyJwtToken(token.(string))
 	if err != nil {
 		return false, ""
 	}
-	return true, id.(string)
+	_, err = db.FindUserByIdUser(id, s.mongo)
+	if err != nil {
+		return false, ""
+	}
+	return true, id
 }
 
 func (s *Rest) login(w http.ResponseWriter, r *http.Request) {
@@ -55,7 +64,12 @@ func (s *Rest) login(w http.ResponseWriter, r *http.Request) {
 	}
 	store.Options.HttpOnly = true
 	store.Options.MaxAge = 0
-	session.Values["user_id"] = userId
+	token, err := getJwtToken(userId)
+	if err != nil {
+		SendErrorJSON(w, r, 500, "не удалось создать jwt токен. Ошибка:", err)
+		return
+	}
+	session.Values["user_id"] = token //jwt токен
 	if err := session.Save(r, w); err != nil {
 		SendErrorJSON(w, r, 500, "не удалось сохранить сессию", err)
 		return
@@ -77,4 +91,23 @@ func (s *Rest) logout(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	//http.Redirect(w,r, "localhost:" + strconv.Itoa(s.port) + "/login", 303)
+}
+
+func getJwtToken(id string) (string, error) {
+	var token = jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"user_id": id,
+		"exp":     time.Now().Add(time.Hour * 1).Unix(),
+	})
+	return token.SignedString(secretKey)
+}
+
+func verifyJwtToken(token string) (string, error) {
+	tok, err := jwt.Parse(token, func(token *jwt.Token) (interface{}, error) {
+		return secretKey, nil
+	})
+	if err != nil {
+		return "", err
+	}
+	id := tok.Claims.(jwt.MapClaims)["user_id"].(string)
+	return id, nil
 }
