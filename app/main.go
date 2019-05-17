@@ -1,11 +1,11 @@
 package main
 
 import (
-	"english_dictonary/app/cmd/crypto"
 	"english_dictonary/app/db"
 	"english_dictonary/app/provider_db"
 	"fmt"
 	"os"
+	"time"
 )
 
 const (
@@ -46,33 +46,14 @@ func main() {
 		return
 	}
 	defer m.Close()
-
-	token, err := crypto.CreateToken()
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-	fmt.Println(token)
-	RunRest(m)
+	go RunRest(m)
 	if err := db.MigratorIndex(m); err != nil {
 		fmt.Println("[ERROR] не удалось проверить или добавить уникальный индекс для поля login. Ошибка:", err)
 		return
 	}
-	//id, err := db.InsertUser("admin", "5eu7ve", m)
-	//if err != nil {
-	//	fmt.Println("[ERROR] не удалось добавить нового пользователя. Ошибка:",err)
-	//}
-	//fmt.Println(id)
-	isAuth, id, err := db.AuthUser("mila", "5eu7ve", m)
-	if err != nil {
-		fmt.Println("[ERROR] не удалось произвести авторизацию. Ошибка:", err)
-		return
+	for {
+		time.Sleep(10 * time.Minute)
 	}
-	if isAuth {
-		fmt.Println(id)
-	}
-	var s string
-	fmt.Scanln(&s)
 
 	//words := make([]interface{}, 0)
 	//words = append(words, &Word{En: "most", Ru:"наибольшее количество",Transcription: "мост"})

@@ -68,28 +68,35 @@ var GetTokenHandler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Reque
 var store = sessions.NewCookieStore([]byte(os.Getenv("SECRET_KEY")))
 
 func (s *Rest) autharization(w http.ResponseWriter, r *http.Request) {
+	ok, id := s.isAuthSession(w, r)
+	if !ok {
+		SendJSON(w, r, 403, R.JSON{"result": false})
+		return
+	}
+	SendJSON(w, r, 200, R.JSON{"result": true})
+	fmt.Println(id) //используем полученного user далее в коде
+}
+
+func (s *Rest) isAuthSession(w http.ResponseWriter, r *http.Request) (bool, string) {
 	session, err := store.Get(r, "user_session")
 	if err != nil {
-		SendErrorJSON(w, r, 500, "не удалось получить сессию", err)
-		return
+		return false, ""
 	}
-	id := session.Values["user_session"]
+	id := session.Values["user_id"]
+	fmt.Println("проверяем id:", id)
 	if id == nil {
-		SendErrorJSON(w, r, 403, "нет авторизации",
-			fmt.Errorf("пустая сессия"))
-		return
+		return false, ""
 	}
-	user, err := db.FindUserByIdUser(id.(string), s.mongo)
+	_, err = db.FindUserByIdUser(id.(string), s.mongo)
 	if err != nil {
-		SendErrorJSON(w, r, 403, "авторизация", err)
-		return
+		return false, ""
 	}
-	fmt.Println(user)
+	return true, id.(string)
 }
 
 func (s *Rest) login(w http.ResponseWriter, r *http.Request) {
 	login, password, _ := r.BasicAuth()
-	auth, id, err := db.AuthUser(login, password, s.mongo)
+	auth, userId, err := db.AuthUser(login, password, s.mongo)
 	if err != nil {
 		SendErrorJSON(w, r, 500, "не удалось произвести авторизацию", err)
 		return
@@ -104,14 +111,15 @@ func (s *Rest) login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	store.Options.HttpOnly = true
-	store.Options.Secure = true
 	store.Options.MaxAge = 0
-	session.Values["user_session"] = id
+	fmt.Println("устанавливаем id:", userId)
+	session.Values["user_id"] = userId
 	if err := session.Save(r, w); err != nil {
 		SendErrorJSON(w, r, 500, "не удалось сохранить сессию", err)
 		return
 	}
 	SendJSON(w, r, 200, R.JSON{"result": true})
+	//fmt.Println(id)//используем полученый id далее в коде
 }
 
 func (s *Rest) logout(w http.ResponseWriter, r *http.Request) {
@@ -121,8 +129,8 @@ func (s *Rest) logout(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	//сбрасываем cookie
-	fmt.Println(session.Values["user_session"])
-	session.Values["user_session"] = nil
+	fmt.Println("удаляем id:", session.Values["user_id"])
+	session.Options.MaxAge = -1
 	if err := session.Save(r, w); err != nil {
 		SendErrorJSON(w, r, 500, "не удалось удалить сессию", err)
 		return

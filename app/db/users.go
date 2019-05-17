@@ -74,7 +74,8 @@ func FindUserByIdUser(userId string, m *provider_db.MongoClient) (*User, error) 
 	}
 	objectId, err := provider_db.GetObjectId(userId)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("не возможно привести к типу objectId, так как не корректный userId: %v. "+
+			"Дополнительно:%v", userId, err)
 	}
 	user := &User{}
 	if err := m.FindOne(&filter{objectId}, user, users); err != nil {
@@ -104,5 +105,5 @@ func AuthUser(login, pass string, m *provider_db.MongoClient) (bool, string, err
 	if !crypto.CompareHashPassword(listUser[0].Password, pass) {
 		return false, "", nil
 	}
-	return true, listUser[0].Id.(primitive.ObjectID).String(), nil
+	return true, listUser[0].Id.(primitive.ObjectID).Hex(), nil
 }
