@@ -26,10 +26,11 @@ func (s *Rest) Run() error {
 	lg.Info("рест сервер запускается на порту:", s.port)
 	r := chi.NewRouter()
 
-	//r.Handle("/", http.FileServer(http.Dir("./views")))
 	r.Post("/auth", s.autharization)
 	r.Post("/login", s.login)
 	r.Post("/logout", s.logout)
+	r.Post("/add_user", s.newUser)
+	r.Post("/add_word", s.newWord)
 
 	return http.ListenAndServe(":"+strconv.Itoa(s.port), r)
 }

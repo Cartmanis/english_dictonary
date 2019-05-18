@@ -21,9 +21,11 @@ type User struct {
 type NewUser struct {
 	Login    string
 	Password string
+	Email    string
+	Phone    string `bson:",omitempty"`
 }
 
-func InsertUser(login, pass string, m *provider_db.MongoClient) (interface{}, error) {
+func InsertUser(login, pass, email, phone string, m *provider_db.MongoClient) (interface{}, error) {
 	if m == nil {
 		return nil, fmt.Errorf("не иницилизированная база данных mongoDb")
 	}
@@ -41,7 +43,7 @@ func InsertUser(login, pass string, m *provider_db.MongoClient) (interface{}, er
 	if err != nil {
 		return nil, err
 	}
-	newUser := &NewUser{login, passHash}
+	newUser := &NewUser{login, passHash, email, phone}
 	return m.InsertOne(newUser, users)
 }
 
