@@ -103,6 +103,9 @@ func getJwtToken(id string) (string, error) {
 
 func verifyJwtToken(token string) (string, error) {
 	tok, err := jwt.Parse(token, func(token *jwt.Token) (interface{}, error) {
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("неожиданный метод подписания %v", token.Header["alg"])
+		}
 		return secretKey, nil
 	})
 	if err != nil {
