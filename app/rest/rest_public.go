@@ -42,8 +42,7 @@ func (s *Rest) newWord(w http.ResponseWriter, r *http.Request) {
 		SendJSON(w, r, 403, map[string]bool{"result": false})
 		return
 	}
-	fmt.Println(userId)
-	words := map[string]interface{}{}
+	words := map[string]string{"userId": userId}
 	if err := json.NewDecoder(r.Body).Decode(&words); err != nil {
 		SendErrorJSON(w, r, 500, "не удалось добавить слово", err)
 		return

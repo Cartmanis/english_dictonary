@@ -4,7 +4,6 @@ import (
 	"english_dictonary/app/db"
 	"fmt"
 	"github.com/dgrijalva/jwt-go"
-	R "github.com/go-pkgz/rest"
 	"github.com/gorilla/sessions"
 	"net/http"
 	"os"
@@ -19,10 +18,10 @@ var (
 func (s *Rest) autharization(w http.ResponseWriter, r *http.Request) {
 	ok, id := s.isAuthSession(w, r)
 	if !ok {
-		SendJSON(w, r, 403, R.JSON{"result": false})
+		SendJSON(w, r, 403, map[string]bool{"result": false})
 		return
 	}
-	SendJSON(w, r, 200, R.JSON{"result": true})
+	SendJSON(w, r, 200, map[string]bool{"result": true})
 	fmt.Println(id) //используем полученного user далее в коде
 }
 
@@ -54,7 +53,7 @@ func (s *Rest) login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if !auth {
-		SendJSON(w, r, 403, R.JSON{"result": false})
+		SendJSON(w, r, 403, map[string]bool{"result": false})
 		return
 	}
 	session, err := store.Get(r, "user_session")
@@ -74,7 +73,7 @@ func (s *Rest) login(w http.ResponseWriter, r *http.Request) {
 		SendErrorJSON(w, r, 500, "не удалось сохранить сессию", err)
 		return
 	}
-	SendJSON(w, r, 200, R.JSON{"result": true})
+	SendJSON(w, r, 200, map[string]bool{"result": true})
 	//fmt.Println(id)//используем полученый id далее в коде
 }
 
