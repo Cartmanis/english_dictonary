@@ -3,6 +3,8 @@ package service
 import (
 	"english_dictonary/app/provider_db"
 	"fmt"
+	"math/rand"
+	"time"
 )
 
 type word struct {
@@ -35,11 +37,7 @@ func (s *Service) GetRandomWord() (*word, error) {
 	if err := checkService(s); err != nil {
 		return nil, err
 	}
-	listWord := make([]struct {
-		En            string
-		Ru            string
-		Transcription string
-	}, 0)
+	listWord := make([]*word, 0)
 	filter := struct {
 		IdUser string `bson:"id_user"`
 	}{s.idUser}
@@ -47,5 +45,7 @@ func (s *Service) GetRandomWord() (*word, error) {
 	if err != nil {
 		return nil, err
 	}
-	return nil, nil
+	rand.Seed(time.Now().Unix())
+	index := rand.Intn(len(listWord))
+	return listWord[index], nil
 }

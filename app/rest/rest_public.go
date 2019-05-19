@@ -26,7 +26,11 @@ func (s *Rest) run(w http.ResponseWriter, r *http.Request) {
 		SendErrorJSON(w, r, 500, "не удалось найти слово", err)
 		return
 	}
-	fmt.Println(word)
+	SendJSON(w, r, 200, map[string]string{
+		"En":            word.En,
+		"Ru":            word.Ru,
+		"Transcription": word.Transcription,
+	})
 }
 
 func (s *Rest) newUser(w http.ResponseWriter, r *http.Request) {
