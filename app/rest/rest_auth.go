@@ -95,7 +95,7 @@ func (s *Rest) logout(w http.ResponseWriter, r *http.Request) {
 func getJwtToken(id string) (string, error) {
 	var token = jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"user_id": id,
-		"exp":     time.Now().Add(time.Hour * 1).Unix(),
+		"exp":     time.Now().Add(time.Hour * 3).Unix(),
 	})
 	return token.SignedString(secretKey)
 }

@@ -26,6 +26,7 @@ func (s *Rest) Run() error {
 	lg.Info("рест сервер запускается на порту:", s.port)
 	r := chi.NewRouter()
 
+	r.Get("/", s.run)
 	r.Post("/auth", s.autharization)
 	r.Post("/login", s.login)
 	r.Post("/logout", s.logout)

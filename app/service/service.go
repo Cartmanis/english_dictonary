@@ -13,7 +13,7 @@ type word struct {
 
 type Service struct {
 	mongo    *provider_db.MongoClient
-	idUser   interface{}
+	idUser   string
 	interval int
 }
 
@@ -27,20 +27,23 @@ func checkService(s *Service) error {
 	return nil
 }
 
-func NewService(idUser string, interval int, m *provider_db.MongoClient) (*Service, error) {
-	idObject, err := provider_db.GetObjectId(idUser)
-	if err != nil {
-		return nil, err
-	}
-	return &Service{m, idObject, interval}, nil
+func NewService(idUser string, interval int, m *provider_db.MongoClient) *Service {
+	return &Service{m, idUser, interval}
 }
 
 func (s *Service) GetRandomWord() (*word, error) {
 	if err := checkService(s); err != nil {
 		return nil, err
 	}
-	listWord := map[string]string{}
-	err := s.mongo.Find(map[string]interface{}{"id_user": s.idUser}, listWord, "english")
+	listWord := make([]struct {
+		En            string
+		Ru            string
+		Transcription string
+	}, 0)
+	filter := struct {
+		IdUser string `bson:"id_user"`
+	}{s.idUser}
+	err := s.mongo.Find(&filter, &listWord, "english")
 	if err != nil {
 		return nil, err
 	}

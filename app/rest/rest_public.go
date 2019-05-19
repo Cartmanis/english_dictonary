@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"english_dictonary/app/db"
 	"english_dictonary/app/provider_db"
+	"english_dictonary/app/service"
 	"fmt"
 	"net/http"
 	"time"
@@ -12,6 +13,21 @@ import (
 const (
 	english = "english"
 )
+
+func (s *Rest) run(w http.ResponseWriter, r *http.Request) {
+	ok, id := s.isAuthSession(w, r)
+	if !ok {
+		SendJSON(w, r, 401, map[string]bool{"result": false})
+		return
+	}
+	sr := service.NewService(id, 1, s.mongo)
+	word, err := sr.GetRandomWord()
+	if err != nil {
+		SendErrorJSON(w, r, 500, "не удалось найти слово", err)
+		return
+	}
+	fmt.Println(word)
+}
 
 func (s *Rest) newUser(w http.ResponseWriter, r *http.Request) {
 	if !checkInitRest(s, w, r) {
