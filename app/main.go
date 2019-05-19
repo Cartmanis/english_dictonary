@@ -52,6 +52,7 @@ func main() {
 	}
 	go RunRest(m)
 	for {
+		w, err := service
 		time.Sleep(10 * time.Minute)
 	}
 

@@ -18,7 +18,7 @@ var (
 func (s *Rest) autharization(w http.ResponseWriter, r *http.Request) {
 	ok, id := s.isAuthSession(w, r)
 	if !ok {
-		SendJSON(w, r, 403, map[string]bool{"result": false})
+		SendJSON(w, r, 401, map[string]bool{"result": false})
 		return
 	}
 	SendJSON(w, r, 200, map[string]bool{"result": true})
@@ -53,7 +53,7 @@ func (s *Rest) login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if !auth {
-		SendJSON(w, r, 403, map[string]bool{"result": false})
+		SendJSON(w, r, 401, map[string]bool{"result": false})
 		return
 	}
 	session, err := store.Get(r, "user_session")
