@@ -1,8 +1,8 @@
 package service
 
 import (
-	"english_dictonary/app/provider_db"
 	"fmt"
+	"github.com/cartmanis/english_dictonary/app/provider_db"
 	"math/rand"
 	"time"
 )

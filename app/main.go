@@ -1,9 +1,9 @@
 package main
 
 import (
-	"english_dictonary/app/db"
-	"english_dictonary/app/provider_db"
-	"fmt"
+	"github.com/cartmanis/english_dictonary/app/cmd/lg"
+	"github.com/cartmanis/english_dictonary/app/db"
+	"github.com/cartmanis/english_dictonary/app/provider_db"
 	"os"
 	"time"
 )
@@ -42,12 +42,12 @@ var (
 func main() {
 	m, err := provider_db.NewStoreContext(url, dbName, login, password, 15)
 	if err != nil {
-		fmt.Println("[ERROR] не удалось подключиться к базе данных mongodb. Ошибка:", err)
+		lg.Error("не удалось подключиться к базе данных mongodb. Ошибка:", err)
 		return
 	}
 	defer m.Close()
 	if err := db.MigratorIndex(m); err != nil {
-		fmt.Println("[ERROR] не удалось проверить или добавить уникальный индекс для поля login. Ошибка:", err)
+		lg.Error("не удалось проверить или добавить уникальный индекс для поля login. Ошибка:", err)
 		return
 	}
 	go RunRest(m)

@@ -1,11 +1,10 @@
 package rest
 
 import (
-	"english_dictonary/app/cmd/lg"
-	"english_dictonary/app/provider_db"
+	"github.com/cartmanis/english_dictonary/app/cmd/lg"
+	"github.com/cartmanis/english_dictonary/app/provider_db"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/render"
-	R "github.com/go-pkgz/rest"
 	"net/http"
 	"strconv"
 )
@@ -44,5 +43,9 @@ func SendJSON(w http.ResponseWriter, r *http.Request, status int, i interface{})
 
 func SendErrorJSON(w http.ResponseWriter, r *http.Request, httpStatusCode int, details string, err error) {
 	render.Status(r, httpStatusCode)
-	render.JSON(w, r, R.JSON{"error": err.Error(), "details": details})
+	if err == nil {
+		render.JSON(w, r, map[string]string{"error": "", "details": details})
+		return
+	}
+	render.JSON(w, r, map[string]string{"error": err.Error(), "details": details})
 }

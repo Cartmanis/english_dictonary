@@ -2,10 +2,10 @@ package rest
 
 import (
 	"encoding/json"
-	"english_dictonary/app/db"
-	"english_dictonary/app/provider_db"
-	"english_dictonary/app/service"
 	"fmt"
+	"github.com/cartmanis/english_dictonary/app/db"
+	"github.com/cartmanis/english_dictonary/app/provider_db"
+	"github.com/cartmanis/english_dictonary/app/service"
 	"net/http"
 	"time"
 )
@@ -41,6 +41,10 @@ func (s *Rest) newUser(w http.ResponseWriter, r *http.Request) {
 	password := r.PostFormValue("password")
 	email := r.PostFormValue("email")
 	phone := r.PostFormValue("phone")
+	if login == "" || password == "" || email == "" {
+		SendErrorJSON(w, r, 400, "не заполнены обязательные поля login, password, email", nil)
+		return
+	}
 	id, err := db.InsertUser(login, password, email, phone, s.mongo)
 	if err != nil {
 		SendErrorJSON(w, r, 400, "не удалось зарегистрировать пользователя", err)

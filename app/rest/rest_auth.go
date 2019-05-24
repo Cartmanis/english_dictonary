@@ -1,8 +1,8 @@
 package rest
 
 import (
-	"english_dictonary/app/db"
 	"fmt"
+	"github.com/cartmanis/english_dictonary/app/db"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gorilla/sessions"
 	"net/http"
