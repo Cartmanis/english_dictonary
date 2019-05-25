@@ -26,10 +26,11 @@ func (s *Rest) run(w http.ResponseWriter, r *http.Request) {
 		SendErrorJSON(w, r, 500, "не удалось найти слово", err)
 		return
 	}
-	SendJSON(w, r, 200, map[string]string{
+	SendJSON(w, r, 200, map[string]interface{}{
 		"En":            word.En,
 		"Ru":            word.Ru,
 		"Transcription": word.Transcription,
+		"Date":          word.Date,
 	})
 }
 

@@ -11,6 +11,7 @@ type word struct {
 	En            string
 	Ru            string
 	Transcription string
+	Date          time.Time
 }
 
 type Service struct {
@@ -34,6 +35,7 @@ func NewService(idUser string, interval int, m *provider_db.MongoClient) *Servic
 }
 
 func (s *Service) GetRandomWord() (*word, error) {
+	const location = "Local"
 	if err := checkService(s); err != nil {
 		return nil, err
 	}
@@ -45,7 +47,12 @@ func (s *Service) GetRandomWord() (*word, error) {
 	if err != nil {
 		return nil, err
 	}
+	loc, err := time.LoadLocation(location)
+	if err != nil {
+		return nil, err
+	}
 	rand.Seed(time.Now().Unix())
 	index := rand.Intn(len(listWord))
+	listWord[index].Date = listWord[index].Date.In(loc)
 	return listWord[index], nil
 }
