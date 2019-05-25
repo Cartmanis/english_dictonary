@@ -2,6 +2,7 @@ package provider_db
 
 import (
 	"fmt"
+	"github.com/cartmanis/english_dictonary/backend"
 	"testing"
 )
 
@@ -13,7 +14,7 @@ type Word struct {
 }
 
 func TestMongoClient_InsertOne(t *testing.T) {
-	client, err := NewStoreContext(10)
+	client, err := backend.NewStoreContext(10)
 	if err != nil {
 		t.Error(err)
 		return

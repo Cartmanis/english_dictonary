@@ -1,9 +1,9 @@
 package main
 
 import (
-	"github.com/cartmanis/english_dictonary/app/cmd/lg"
-	"github.com/cartmanis/english_dictonary/app/db"
-	"github.com/cartmanis/english_dictonary/app/provider_db"
+	"github.com/cartmanis/english_dictonary/backend/app/cmd/lg"
+	"github.com/cartmanis/english_dictonary/backend/app/db"
+	"github.com/cartmanis/english_dictonary/backend/app/provider_db"
 	"os"
 	"time"
 )
@@ -50,13 +50,9 @@ func main() {
 		lg.Error("не удалось проверить или добавить уникальный индекс для поля login. Ошибка:", err)
 		return
 	}
+
 	go RunRest(m)
 	for {
 		time.Sleep(10 * time.Minute)
 	}
-
-	//words := make([]interface{}, 0)
-	//words = append(words, &Word{En: "most", Ru:"наибольшее количество",Transcription: "мост"})
-	//words = append(words, &Word{"land", "Земля", "Лаанд"})
-	//word:= &Word{"to say", "рассказ", "ту сэй"}
 }

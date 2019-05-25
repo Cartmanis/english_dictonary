@@ -1,8 +1,8 @@
 package rest
 
 import (
-	"github.com/cartmanis/english_dictonary/app/cmd/lg"
-	"github.com/cartmanis/english_dictonary/app/provider_db"
+	"github.com/cartmanis/english_dictonary/backend/app/cmd/lg"
+	"github.com/cartmanis/english_dictonary/backend/app/provider_db"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/render"
 	"net/http"

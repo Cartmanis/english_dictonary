@@ -3,9 +3,9 @@ package rest
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/cartmanis/english_dictonary/app/db"
-	"github.com/cartmanis/english_dictonary/app/provider_db"
-	"github.com/cartmanis/english_dictonary/app/service"
+	"github.com/cartmanis/english_dictonary/backend/app/db"
+	"github.com/cartmanis/english_dictonary/backend/app/provider_db"
+	"github.com/cartmanis/english_dictonary/backend/app/service"
 	"net/http"
 	"time"
 )
@@ -30,7 +30,6 @@ func (s *Rest) run(w http.ResponseWriter, r *http.Request) {
 		"En":            word.En,
 		"Ru":            word.Ru,
 		"Transcription": word.Transcription,
-		"Date":          word.Date,
 	})
 }
 

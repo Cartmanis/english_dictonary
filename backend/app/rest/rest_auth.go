@@ -2,7 +2,7 @@ package rest
 
 import (
 	"fmt"
-	"github.com/cartmanis/english_dictonary/app/db"
+	"github.com/cartmanis/english_dictonary/backend/app/db"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gorilla/sessions"
 	"net/http"
