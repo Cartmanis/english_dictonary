@@ -152,6 +152,15 @@ func (m *MongoClient) UpdateOne(filter interface{}, update interface{}, keyUpdat
 	return collection.UpdateOne(m.ctx, filterBson, updateBson)
 }
 
+func (m *MongoClient) AddField(filter interface{}, update interface{}, collectionName string) (*mongo.UpdateResult, error) {
+	collection := m.client.Database(m.db).Collection(collectionName)
+	//filterBson, err := bson.Marshal(filter)
+	//if err != nil {
+	//	return nil, err
+	//}
+	return collection.UpdateOne(m.ctx, filter, update)
+}
+
 func (m *MongoClient) DeleteOne(filter interface{}, collectionName string) (*mongo.DeleteResult, error) {
 	collection := m.client.Database(m.db).Collection(collectionName)
 	filterBson, err := bson.Marshal(filter)

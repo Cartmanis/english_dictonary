@@ -111,3 +111,33 @@ func (s *Rest) deleteWord(w http.ResponseWriter, r *http.Request) {
 	}
 	SendJSON(w, r, 200, map[string]int64{"result": result.DeletedCount})
 }
+
+func (s *Rest) forgetWord(w http.ResponseWriter, r *http.Request) {
+	if !checkInitRest(s, w, r) {
+		return
+	}
+	ok, id := s.isAuthSession(w, r)
+	if !ok {
+		SendJSON(w, r, 401, map[string]bool{"result": false})
+		return
+	}
+	idUser := r.PostFormValue("id_user")
+	//убеждаемя, что это слово этого пользователя иначе возвращаем код 403
+	if idUser != id {
+		SendJSON(w, r, 403, map[string]bool{"result": false})
+		return
+	}
+	idWord := r.PostFormValue("id_word")
+	idWordObject, err := provider_db.GetObjectId(idWord)
+	if err != nil {
+		SendErrorJSON(w, r, 500, "не удалось получить objectId для слова", err)
+		return
+	}
+	update := map[string]bool{"forget": false}
+	result, err := s.mongo.UpdateOne(map[string]interface{}{"_id": idWordObject}, update, "$set", english)
+	if err != nil {
+		SendErrorJSON(w, r, 500, "не удалось забыть слово", err)
+		return
+	}
+	SendJSON(w, r, 200, map[string]int64{"result": result.UpsertedCount})
+}

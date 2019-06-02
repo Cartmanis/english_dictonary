@@ -31,7 +31,8 @@ func (s *Rest) Run() error {
 	r.Post("/logout", s.logout)
 	r.Post("/add_user", s.newUser)
 	r.Post("/add_word", s.newWord)
-	r.Post("/delete_word", s.deleteWord)
+	r.Delete("/delete_word", s.deleteWord)
+	r.Put("/forget_word", s.forgetWord)
 
 	return http.ListenAndServe(":"+strconv.Itoa(s.port), r)
 }
