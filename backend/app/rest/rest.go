@@ -44,6 +44,7 @@ func SendJSON(w http.ResponseWriter, r *http.Request, status int, i interface{})
 
 func SendErrorJSON(w http.ResponseWriter, r *http.Request, httpStatusCode int, details string, err error) {
 	render.Status(r, httpStatusCode)
+	lg.Errorf("%v. Ошибка:%v", details, err)
 	if err == nil {
 		render.JSON(w, r, map[string]string{"error": "", "details": details})
 		return
