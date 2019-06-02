@@ -2,7 +2,7 @@ package rest
 
 import (
 	"fmt"
-	"github.com/cartmanis/english_dictonary/backend/app/db"
+	"github.com/cartmanis/english_dictonary/backend/app/service"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gorilla/sessions"
 	"net/http"
@@ -38,7 +38,7 @@ func (s *Rest) isAuthSession(w http.ResponseWriter, r *http.Request) (bool, stri
 	if err != nil {
 		return false, ""
 	}
-	_, err = db.FindUserByIdUser(id, s.mongo)
+	_, err = service.FindUserByIdUser(id, s.mongo)
 	if err != nil {
 		return false, ""
 	}
@@ -47,7 +47,7 @@ func (s *Rest) isAuthSession(w http.ResponseWriter, r *http.Request) (bool, stri
 
 func (s *Rest) login(w http.ResponseWriter, r *http.Request) {
 	login, password, _ := r.BasicAuth()
-	auth, userId, err := db.AuthUser(login, password, s.mongo)
+	auth, userId, err := service.AuthUser(login, password, s.mongo)
 	if err != nil {
 		SendErrorJSON(w, r, 500, "не удалось произвести авторизацию", err)
 		return

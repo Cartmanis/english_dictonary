@@ -3,8 +3,6 @@ package rest
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/cartmanis/english_dictonary/backend/app/db"
-	"github.com/cartmanis/english_dictonary/backend/app/provider_db"
 	"github.com/cartmanis/english_dictonary/backend/app/service"
 	"net/http"
 	"time"
@@ -45,7 +43,7 @@ func (s *Rest) newUser(w http.ResponseWriter, r *http.Request) {
 		SendErrorJSON(w, r, 400, "не заполнены обязательные поля login, password, email", nil)
 		return
 	}
-	id, err := db.InsertUser(login, password, email, phone, s.mongo)
+	id, err := service.InsertUser(login, password, email, phone, s.mongo)
 	if err != nil {
 		SendErrorJSON(w, r, 400, "не удалось зарегистрировать пользователя", err)
 		return
@@ -99,17 +97,17 @@ func (s *Rest) deleteWord(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	idWord := r.PostFormValue("id_word")
-	idWordObject, err := provider_db.GetObjectId(idWord)
-	if err != nil {
-		SendErrorJSON(w, r, 500, "не удалось получить objectId для слова", err)
-		return
-	}
-	result, err := s.mongo.DeleteOne(map[string]interface{}{"_id": idWordObject}, english)
+	count, err := service.DeleteWord(idWord, s.mongo)
 	if err != nil {
 		SendErrorJSON(w, r, 500, "не удалось удалить слово", err)
 		return
 	}
-	SendJSON(w, r, 200, map[string]int64{"result": result.DeletedCount})
+	if count < 1 {
+		SendErrorJSON(w, r, 400, "не удалось удалить слово",
+			fmt.Errorf("не найденно не одного подходящего слова для удаления"))
+		return
+	}
+	SendJSON(w, r, 200, map[string]int64{"result": count})
 }
 
 func (s *Rest) forgetWord(w http.ResponseWriter, r *http.Request) {
@@ -128,16 +126,15 @@ func (s *Rest) forgetWord(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	idWord := r.PostFormValue("id_word")
-	idWordObject, err := provider_db.GetObjectId(idWord)
-	if err != nil {
-		SendErrorJSON(w, r, 500, "не удалось получить objectId для слова", err)
-		return
-	}
-	update := map[string]bool{"forget": false}
-	result, err := s.mongo.UpdateOne(map[string]interface{}{"_id": idWordObject}, update, "$set", english)
+	count, err := service.ForgetOrRecall(true, idWord, s.mongo)
 	if err != nil {
 		SendErrorJSON(w, r, 500, "не удалось забыть слово", err)
 		return
 	}
-	SendJSON(w, r, 200, map[string]int64{"result": result.UpsertedCount})
+	if count < 1 {
+		SendErrorJSON(w, r, 400, "не удалось забвть слово",
+			fmt.Errorf("не найденно не одного подходящего слова"))
+		return
+	}
+	SendJSON(w, r, 200, map[string]int64{"result": count})
 }

@@ -2,8 +2,8 @@ package main
 
 import (
 	"github.com/cartmanis/english_dictonary/backend/app/cmd/lg"
-	"github.com/cartmanis/english_dictonary/backend/app/db"
 	"github.com/cartmanis/english_dictonary/backend/app/provider_db"
+	"github.com/cartmanis/english_dictonary/backend/app/service"
 	"os"
 	"time"
 )
@@ -46,7 +46,7 @@ func main() {
 		return
 	}
 	defer m.Close()
-	if err := db.MigratorIndex(m); err != nil {
+	if err := service.MigratorIndex(m); err != nil {
 		lg.Error("не удалось проверить или добавить уникальный индекс для поля login. Ошибка:", err)
 		return
 	}
