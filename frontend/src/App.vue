@@ -1,7 +1,7 @@
 <template>
   <v-app>
     <v-content>
-      <Login/>
+      <Login show-password @click-login="onLogin"/>
     </v-content>
   </v-app>
 </template>
@@ -17,6 +17,12 @@ export default {
   data () {
     return {
       //
+    }
+  },
+  methods: {
+    onLogin(login, password) {
+      console.log(login)
+      console.log(password)
     }
   }
 }
