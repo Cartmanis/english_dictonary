@@ -45,6 +45,10 @@ func (s *Service) GetRandomWord() (*word, error) {
 	if err != nil {
 		return nil, err
 	}
+	fmt.Println(listWord)
+	if len(listWord) == 0 {
+		return nil, fmt.Errorf("в базе данных нет ни одного слова")
+	}
 	rand.Seed(time.Now().Unix())
 	index := rand.Intn(len(listWord))
 	return listWord[index], nil

@@ -26,15 +26,20 @@ func (s *Rest) autharization(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Rest) isAuthSession(w http.ResponseWriter, r *http.Request) (bool, string) {
-	session, err := store.Get(r, "user_session")
+	//Реализация с session
+	//session, err := store.Get(r, "user_session")
+	//if err != nil {
+	//	return false, ""
+	//}
+	//token := session.Values["user_id"]
+	//if token == nil {
+	//	return false, ""
+	//}
+	c, err := r.Cookie("token")
 	if err != nil {
 		return false, ""
 	}
-	token := session.Values["user_id"]
-	if token == nil {
-		return false, ""
-	}
-	id, err := verifyJwtToken(token.(string))
+	id, err := verifyJwtToken(c.Value)
 	if err != nil {
 		return false, ""
 	}
@@ -56,11 +61,11 @@ func (s *Rest) login(w http.ResponseWriter, r *http.Request) {
 		SendJSON(w, r, 401, map[string]bool{"result": false})
 		return
 	}
-	session, err := store.Get(r, "user_session")
-	if err != nil {
-		SendErrorJSON(w, r, 500, "не удалось получить сессию", err)
-		return
-	}
+	//session, err := store.Get(r, "user_session")
+	//if err != nil {
+	//	SendErrorJSON(w, r, 500, "не удалось получить сессию", err)
+	//	return
+	//}
 	store.Options.HttpOnly = true
 	store.Options.MaxAge = 0
 	token, err := getJwtToken(userId)
@@ -68,27 +73,48 @@ func (s *Rest) login(w http.ResponseWriter, r *http.Request) {
 		SendErrorJSON(w, r, 500, "не удалось создать jwt токен. Ошибка:", err)
 		return
 	}
-	session.Values["user_id"] = token //jwt токен
-	if err := session.Save(r, w); err != nil {
-		SendErrorJSON(w, r, 500, "не удалось сохранить сессию", err)
-		return
+	c := &http.Cookie{
+		Name:     "token",
+		Value:    token,
+		Path:     "/",
+		MaxAge:   0,
+		Secure:   true,
+		HttpOnly: true,
+		Expires:  time.Now().Add(time.Hour * 3),
 	}
+	http.SetCookie(w, c)
+	//предыдущая реализация
+	//session.Values["token"] = token //jwt токен
+	//if err := session.Save(r, w); err != nil {
+	//	SendErrorJSON(w, r, 500, "не удалось сохранить сессию", err)
+	//	return
+	//}
 	SendJSON(w, r, 200, map[string]bool{"result": true})
-	//fmt.Println(id)//используем полученый id далее в коде
 }
 
 func (s *Rest) logout(w http.ResponseWriter, r *http.Request) {
-	session, err := store.Get(r, "user_session")
-	if err != nil {
-		SendErrorJSON(w, r, 500, "не удалось удалить сессию", err)
-		return
+	//предыдущая реализация через session
+	//session, err := store.Get(r, "user_session")
+	//if err != nil {
+	//	SendErrorJSON(w, r, 500, "не удалось удалить сессию", err)
+	//	return
+	//}
+	////сбрасываем cookie
+	//session.Options.MaxAge = -1
+	//if err := session.Save(r, w); err != nil {
+	//	SendErrorJSON(w, r, 500, "не удалось удалить сессию", err)
+	//	return
+	//}
+	c := &http.Cookie{
+		Name:    "token",
+		Value:   "",
+		Path:    "/",
+		Expires: time.Unix(0, 0),
+
+		HttpOnly: true,
 	}
-	//сбрасываем cookie
-	session.Options.MaxAge = -1
-	if err := session.Save(r, w); err != nil {
-		SendErrorJSON(w, r, 500, "не удалось удалить сессию", err)
-		return
-	}
+	http.SetCookie(w, c)
+	SendJSON(w, r, 200, map[string]bool{"result": true})
 	//http.Redirect(w,r, "localhost:" + strconv.Itoa(s.port) + "/login", 303)
 }
 
