@@ -66,8 +66,8 @@ func (s *Rest) login(w http.ResponseWriter, r *http.Request) {
 	//	SendErrorJSON(w, r, 500, "не удалось получить сессию", err)
 	//	return
 	//}
-	store.Options.HttpOnly = true
-	store.Options.MaxAge = 0
+	//store.Options.HttpOnly = true
+	//store.Options.MaxAge = 0
 	token, err := getJwtToken(userId)
 	if err != nil {
 		SendErrorJSON(w, r, 500, "не удалось создать jwt токен. Ошибка:", err)
@@ -77,10 +77,8 @@ func (s *Rest) login(w http.ResponseWriter, r *http.Request) {
 		Name:     "token",
 		Value:    token,
 		Path:     "/",
-		MaxAge:   0,
-		Secure:   true,
-		HttpOnly: true,
-		Expires:  time.Now().Add(time.Hour * 3),
+		Secure:   false, //cookie отсылаются на сервер только если запрос выполняется по протоколу SSL и HTTPS
+		HttpOnly: true,  //Куки HTTPonly не доступны из JavaScript через свойства Document.cookie API, что помогает избежать межсайтового скриптинга (XSS)
 	}
 	http.SetCookie(w, c)
 	//предыдущая реализация
