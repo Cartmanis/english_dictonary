@@ -1,7 +1,7 @@
 <template>
   <v-app>
     <v-content>
-      <Login show-password @click-login="onLogin"/>
+      <Login show-password :registration="registration" @click-login="onLogin"/>
     </v-content>
   </v-app>
 </template>
@@ -16,7 +16,11 @@ export default {
   },
   data () {
     return {
-      //
+      registration: {
+        login: {max: 14},
+        password: {min: 6},
+        email: {required: false}
+      }
     }
   },
   methods: {
