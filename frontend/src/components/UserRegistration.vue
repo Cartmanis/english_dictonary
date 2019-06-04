@@ -6,6 +6,7 @@
             </v-card-title>
             <v-card-text>
                 <v-container grid-list-md>
+                    <form @submit.prevent="onSumbit">
                     <v-layout wrap>
                         <v-flex xs12>
                             <v-text-field label="Имя пользователя*" prepend-icon="person"
@@ -40,6 +41,7 @@
                             </v-text-field>
                         </v-flex>
                     </v-layout>
+                    </form>
                 </v-container>
                 <small>*поля обязательные для заполнения</small>
             </v-card-text>
@@ -71,18 +73,19 @@
         },
         computed: {
           getParams () {
-              let params = [] //map key, value
+              let params = new Map();
+
               if (this.registration && this.registration.login && this.registration.login.name) {
-                  params.push(this.registration.login.name)
+                  params.set(this.registration.login.name, this.login)
               }
               if (this.registration && this.registration.password && this.registration.password.name) {
-                  params.push(this.registration.password.name)
+                  params.set(this.registration.password.name, this.password.text)
               }
               if (this.registration && this.registration.email && this.registration.email.name) {
-                  params.push(this.registration.email.name)
+                  params.set(this.registration.email.name, this.email)
               }
               if (this.registration && this.registration.phone && this.registration.phone.name) {
-                  params.push(this.registration.phone.name)
+                  params.set(this.registration.phone.name, this.phone)
               }
               return params
           }
@@ -93,9 +96,7 @@
           },
           onRegistration() {
               const data = new FormData()
-              this.getParams.foreach(item => {
-                  data.append(item, this.login)
-              })
+              console.log(this.getParams)
           }
         },
         data () {
