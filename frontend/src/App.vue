@@ -17,10 +17,10 @@ export default {
   data () {
     return {
       registration: {
-        login: {max: 14},
-        password: {min: 7},
-        email: {required: true},
-        phone: {required: false}
+        login: {max: 14, name:"login"},
+        password: {min: 7, name:"password"},
+        email: {required: true, name:"email"},
+        phone: {required: false, name:"phone"}
       }
     }
   },

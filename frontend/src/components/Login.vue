@@ -26,13 +26,14 @@
           <v-card-actions>
             <v-btn @click ="onLogin" color="primary">Вход</v-btn>
             <v-spacer></v-spacer>
-            <v-btn @click = "onClosed" color="primary">Закрыть</v-btn>
-            <v-btn v-show = "registration" @click="onRegistration" flat color="info">Регистрация</v-btn>
+            <v-btn flat @click = "onClosed" color="primary">Закрыть</v-btn>
+            <v-btn flat v-show = "registration" @click="onRegistration" color="info">Регистрация</v-btn>
           </v-card-actions>
         </v-card>
       </v-flex>
     </v-layout>
-    <user-registration width="700px" :show=userRegistration :registration="registration" @closed="userRegistration=$event"></user-registration>
+    <user-registration width="620px" :registration="registration"
+                       :show=userRegistration  @closed="userRegistration=$event"></user-registration>
   </v-container>
 </template>
 <script>
@@ -44,14 +45,14 @@
         },
       data () {
         return {
-          userRegistration : false,
-          showAuth: true,
-          error: false,
-          login: "",
-          password: {
-            text: "",
-            show: ""
-          },
+            showAuth:true,
+            userRegistration : false,
+            error: false,
+            login: "",
+            password: {
+                text: "",
+                show: ""
+            },
         }
       },
       props: {

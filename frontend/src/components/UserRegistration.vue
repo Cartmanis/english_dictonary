@@ -8,23 +8,33 @@
                 <v-container grid-list-md>
                     <v-layout wrap>
                         <v-flex xs12>
-                            <v-text-field label="Имя пользователя*"
+                            <v-text-field label="Имя пользователя*" prepend-icon="person"
+                                          v-model="login"
                                           :rules="[rules.required, rules.maxLogin, rules.minLogin]"
                             ></v-text-field>
                         </v-flex>
                         <v-flex xs12>
-                            <v-text-field label="Пароль*" type = "password"
+                            <v-text-field label="Пароль*" prepend-icon="lock"
+                                          :type = "password.show ? 'text' : 'password'"
+                                          v-model="password.text"
+                                          :append-icon="password.show ? 'visibility' : 'visibility_off'"
+                                          @click:append="password.show=!password.show"
                                           :rules="[rules.required, rules.passwordValid, rules.minPassword]">
                             </v-text-field>
                         </v-flex>
                         <v-flex xs12>
-                            <v-text-field v-show="registration && registration.email" :label="checker.email.required ? 'Email*' : 'Email'"
+                            <v-text-field prepend-icon="email"
+                                          v-show="registration && registration.email"
+                                          :label="checker.email.required ? 'Email*' : 'Email'"
                                           v-model="email"
                                           :rules="[rules.requiredEmail, rules.email]">
                             </v-text-field>
                         </v-flex>
                         <v-flex xs12>
-                            <v-text-field v-show="registration && registration.phone" :label="checker.phone.required ? 'Телефон*' : 'Телефон'"
+                            <v-text-field prepend-icon="phone"
+                                        v-show="registration && registration.phone"
+                                          :label="checker.phone.required ? 'Телефон*' : 'Телефон'"
+                                          v-model="phone"
                                           :rules="[rules.requiredPhone, rules.phone]">
 
                             </v-text-field>
@@ -35,8 +45,8 @@
             </v-card-text>
             <v-card-actions>
                 <v-spacer></v-spacer>
-                <v-btn color="blue darken-1" flat @click="onClosed">Закрыть</v-btn>
-                <v-btn color="blue darken-1" flat @click="show = false">Сохранить</v-btn>
+                <v-btn color="primary" flat @click="onClosed">Закрыть</v-btn>
+                <v-btn color="primary" flat @click="onRegistration">Сохранить</v-btn>
             </v-card-actions>
         </v-card>
     </v-dialog>
@@ -54,16 +64,49 @@
             },
             width: {
                 type: String
+            },
+            controler: {
+                type: Object
             }
+        },
+        computed: {
+          getParams () {
+              let params = [] //map key, value
+              if (this.registration && this.registration.login && this.registration.login.name) {
+                  params.push(this.registration.login.name)
+              }
+              if (this.registration && this.registration.password && this.registration.password.name) {
+                  params.push(this.registration.password.name)
+              }
+              if (this.registration && this.registration.email && this.registration.email.name) {
+                  params.push(this.registration.email.name)
+              }
+              if (this.registration && this.registration.phone && this.registration.phone.name) {
+                  params.push(this.registration.phone.name)
+              }
+              return params
+          }
         },
         methods: {
           onClosed() {
               this.$emit('closed', false)
+          },
+          onRegistration() {
+              const data = new FormData()
+              this.getParams.foreach(item => {
+                  data.append(item, this.login)
+              })
           }
         },
         data () {
             return {
+                login:"",
+                password: {
+                    text:"",
+                    show: false
+                },
                 email:"",
+                phone:"",
                 checker : {
                     login: {
                         min: (this.registration && this.registration.login && this.registration.login.min) || 3,
