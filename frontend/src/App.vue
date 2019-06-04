@@ -19,7 +19,7 @@ export default {
       registration: {
         login: {max: 14},
         password: {min: 7},
-        email: {required: false},
+        email: {required: true},
         phone: {required: false}
       }
     }

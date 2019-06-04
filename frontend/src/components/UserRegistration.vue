@@ -1,5 +1,5 @@
 <template>
-    <v-dialog persistent max-width="500px">
+    <v-dialog v-model="show" persistent :max-width="width">
         <v-card>
             <v-card-title>
                 <span class="headline">Регистрация пользователя</span>
@@ -35,8 +35,8 @@
             </v-card-text>
             <v-card-actions>
                 <v-spacer></v-spacer>
-                <v-btn color="blue darken-1" flat @click="dialog = false">Закрыть</v-btn>
-                <v-btn color="blue darken-1" flat @click="dialog = false">Сохранить</v-btn>
+                <v-btn color="blue darken-1" flat @click="onClosed">Закрыть</v-btn>
+                <v-btn color="blue darken-1" flat @click="show = false">Сохранить</v-btn>
             </v-card-actions>
         </v-card>
     </v-dialog>
@@ -46,9 +46,20 @@
     export default {
         name: "UserRegistration",
         props: {
+            show: {
+              type: Boolean
+            },
             registration: {
                 type: Object
+            },
+            width: {
+                type: String
             }
+        },
+        methods: {
+          onClosed() {
+              this.$emit('closed', false)
+          }
         },
         data () {
             return {

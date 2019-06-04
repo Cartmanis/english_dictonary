@@ -32,7 +32,7 @@
         </v-card>
       </v-flex>
     </v-layout>
-    <user-registration v-if="userRegistration" :registration="registration"></user-registration>
+    <user-registration width="700px" :show=userRegistration :registration="registration" @closed="userRegistration=$event"></user-registration>
   </v-container>
 </template>
 <script>
