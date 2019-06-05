@@ -1,57 +1,64 @@
 <template>
-    <v-dialog v-model="show" persistent :max-width="width">
-        <v-card>
-            <v-card-title>
-                <span class="headline">Регистрация пользователя</span>
-            </v-card-title>
-            <v-card-text>
-                <v-container grid-list-md>
-                    <form @submit.prevent="onSumbit">
-                    <v-layout wrap>
-                        <v-flex xs12>
-                            <v-text-field label="Имя пользователя*" prepend-icon="person"
-                                          v-model="login"
-                                          :rules="[rules.required, rules.maxLogin, rules.minLogin]"
-                            ></v-text-field>
-                        </v-flex>
-                        <v-flex xs12>
-                            <v-text-field label="Пароль*" prepend-icon="lock"
-                                          :type = "password.show ? 'text' : 'password'"
-                                          v-model="password.text"
-                                          :append-icon="password.show ? 'visibility' : 'visibility_off'"
-                                          @click:append="password.show=!password.show"
-                                          :rules="[rules.required, rules.passwordValid, rules.minPassword]">
-                            </v-text-field>
-                        </v-flex>
-                        <v-flex xs12>
-                            <v-text-field prepend-icon="email"
-                                          v-show="registration && registration.email"
-                                          :label="checker.email.required ? 'Email*' : 'Email'"
-                                          v-model="email"
-                                          :rules="[rules.requiredEmail, rules.email]">
-                            </v-text-field>
-                        </v-flex>
-                        <v-flex xs12>
-                            <v-text-field prepend-icon="phone"
-                                        v-show="registration && registration.phone"
-                                          :label="checker.phone.required ? 'Телефон*' : 'Телефон'"
-                                          v-model="phone"
-                                          :rules="[rules.requiredPhone, rules.phone]">
+    <v-form ref="form">
+        <v-snackbar
+          v-model="snackbar.show"
+          :color="snackbar.color"
+          :timeout="10000"
+        >{{snackbar.text}}</v-snackbar>
+        <v-dialog v-model="show" persistent :max-width="width">
+            <v-card>
+                <v-card-title>
+                    <span class="headline">Регистрация пользователя</span>
+                </v-card-title>
+                <v-card-text>
+                    <v-container grid-list-md>
+                        <form @submit.prevent="onSumbit">
+                            <v-layout wrap>
+                                <v-flex xs12>
+                                    <v-text-field label="Имя пользователя*" prepend-icon="person"
+                                                  v-model="login"
+                                                  :rules="[rules.required, rules.maxLogin, rules.minLogin]"
+                                    ></v-text-field>
+                                </v-flex>
+                                <v-flex xs12>
+                                    <v-text-field label="Пароль*" prepend-icon="lock"
+                                                  :type = "password.show ? 'text' : 'password'"
+                                                  v-model="password.text"
+                                                  :append-icon="password.show ? 'visibility' : 'visibility_off'"
+                                                  @click:append="password.show=!password.show"
+                                                  :rules="[rules.required, rules.passwordValid, rules.minPassword]">
+                                    </v-text-field>
+                                </v-flex>
+                                <v-flex xs12>
+                                    <v-text-field prepend-icon="email"
+                                                  v-show="registration && registration.email"
+                                                  :label="checker.email.required ? 'Email*' : 'Email'"
+                                                  v-model="email"
+                                                  :rules="[rules.requiredEmail, rules.email]">
+                                    </v-text-field>
+                                </v-flex>
+                                <v-flex xs12>
+                                    <v-text-field prepend-icon="phone"
+                                                  v-show="registration && registration.phone"
+                                                  :label="checker.phone.required ? 'Телефон*' : 'Телефон'"
+                                                  v-model="phone"
+                                                  :rules="[rules.requiredPhone, rules.phone]">
 
-                            </v-text-field>
-                        </v-flex>
-                    </v-layout>
-                    </form>
-                </v-container>
-                <small>*поля обязательные для заполнения</small>
-            </v-card-text>
-            <v-card-actions>
-                <v-spacer></v-spacer>
-                <v-btn color="primary" flat @click="onClosed">Закрыть</v-btn>
-                <v-btn color="primary" flat @click="onRegistration">Сохранить</v-btn>
-            </v-card-actions>
-        </v-card>
-    </v-dialog>
+                                    </v-text-field>
+                                </v-flex>
+                            </v-layout>
+                        </form>
+                    </v-container>
+                    <small>*поля обязательные для заполнения</small>
+                </v-card-text>
+                <v-card-actions>
+                    <v-spacer></v-spacer>
+                    <v-btn color="primary" flat @click="onClosed">Закрыть</v-btn>
+                    <v-btn color="primary" flat @click="onRegistration">Сохранить</v-btn>
+                </v-card-actions>
+            </v-card>
+        </v-dialog>
+    </v-form>
 </template>
 
 <script>
@@ -88,19 +95,41 @@
                   params.set(this.registration.phone.name, this.phone)
               }
               return params
-          }
+          },
+           validate () {
+              return this.$refs.form.validate()
+           }
         },
         methods: {
           onClosed() {
               this.$emit('closed', false)
           },
           onRegistration() {
+              if (!this.validate) {
+                  this.showSnackBar("Сохранение не выполнено. Заполните корректно все поля формы")
+                  return
+              }
               const data = new FormData()
-              console.log(this.getParams)
+              this.getParams.forEach( (value, key, map) => {
+                  if (value === "") {
+                      return
+                  }
+                  data.append(key, value)
+              });
+          },
+          showSnackBar(text, color) {
+              this.snackbar.show = true
+              this.snackbar.text = text
+              this.snackbar.color = color || "error"
           }
         },
         data () {
             return {
+                snackbar: {
+                    show: false,
+                    text: "",
+                    color: ""
+                },
                 login:"",
                 password: {
                     text:"",
