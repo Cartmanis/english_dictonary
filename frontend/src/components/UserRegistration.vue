@@ -62,6 +62,7 @@
 </template>
 
 <script>
+    const axios = require('axios').default
     export default {
         name: "UserRegistration",
         props: {
@@ -104,18 +105,30 @@
           onClosed() {
               this.$emit('closed', false)
           },
-          onRegistration() {
+          async onRegistration() {
+              const url = `http://${window.location.hostname}:27333/api/v1/add_user`
               if (!this.validate) {
-                  this.showSnackBar("Сохранение не выполнено. Заполните корректно все поля формы")
+                  this.showSnackBar("Сохранение не выполнено. Заполните корректно все поля формы", "warning")
                   return
               }
               const data = new FormData()
-              this.getParams.forEach( (value, key, map) => {
+              this.getParams.forEach( (value, key) => {
                   if (value === "") {
                       return
                   }
                   data.append(key, value)
               });
+              try {
+                  const res = await axios.post(`${url}`, data)
+                  if (res && res.data && res.data.error) {
+                      this.showSnackBar(res.data.error, "warning")
+                      return
+                  }
+                  this.$emit('closed', false)
+              } catch (e) {
+                  this.showSnackBar(`не удалось сохранить пользователя. Ошибка: ${e}`)
+              }
+
           },
           showSnackBar(text, color) {
               this.snackbar.show = true

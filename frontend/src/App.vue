@@ -18,7 +18,7 @@ export default {
     return {
       registration: {
         login: {max: 14, name:"login"},
-        password: {min: 7, name:"password"},
+        password: {min: 6, name:"password"},
         email: {required: true, name:"email"},
         phone: {required: false, name:"phone"}
       }

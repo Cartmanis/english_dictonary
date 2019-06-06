@@ -45,7 +45,7 @@ func (s *Rest) newUser(w http.ResponseWriter, r *http.Request) {
 	}
 	id, err := service.InsertUser(login, password, email, phone, s.mongo)
 	if err != nil {
-		SendErrorJSON(w, r, 400, "не удалось зарегистрировать пользователя", err)
+		SendErrorJSON(w, r, 200, "не удалось зарегистрировать пользователя", err)
 		return
 	}
 	fmt.Println(id)

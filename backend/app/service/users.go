@@ -37,7 +37,7 @@ func InsertUser(login, pass, email, phone string, m *provider_db.MongoClient) (i
 		return nil, err
 	}
 	if count >= 1 {
-		return nil, fmt.Errorf("пользователь с именем %v уже существует. Используйте другое имя для регистрации.", login)
+		return nil, fmt.Errorf("Пользователь с именем %v уже существует. Используйте другое имя для регистрации.", login)
 	}
 	passHash, err := crypto.GetHashPassword(pass)
 	if err != nil {
