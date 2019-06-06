@@ -1,5 +1,10 @@
 <template>
   <v-container fluid fill-height>
+    <v-snackbar
+      v-model="snackbar.show"
+      :color="snackbar.color"
+      :timeout="10000"
+    >{{snackbar.text}}</v-snackbar>
     <v-layout align-center justify-center>
       <v-flex xs10 sm8 md5 lg4>
         <v-card v-show="showAuth"  class="elevation-12">
@@ -37,6 +42,7 @@
   </v-container>
 </template>
 <script>
+  const axios = require('axios').default
   import UserRegistration from './UserRegistration'
     export default {
         name: "Login",
@@ -45,6 +51,11 @@
         },
       data () {
         return {
+            snackbar: {
+                show: false,
+                text: "",
+                color: ""
+            },
             showAuth:true,
             userRegistration : false,
             error: false,
@@ -61,16 +72,42 @@
           },
           registration: {
             type: Object
+          },
+          controler: {
+              type: Object
           }
       },
       methods: {
+        showSnackBar(text, color) {
+            this.snackbar.show = true
+            this.snackbar.text = text
+            this.snackbar.color = color || "error"
+        },
         onClosed () {
           this.showAuth = false
         },
         onRegistration () {
           this.userRegistration = true
         },
-        onLogin () {
+        async onLogin () {
+          if (!this.controler) {
+              return
+          }
+          const url = `http://${this.controler.ip}:${this.controler.port}/${this.controler.url}`
+            auth = {
+              login: this.login,
+              password: this.password
+            }
+            const data = new FormData()
+            data.append('login', this.login)
+            data.append('password', this.password.text)
+          try {
+              const res = await axios.post(`${url}`, data)
+              console.log(res)
+          } catch (e) {
+              this.showSnackBar(`не удалось произвести авторизацию. Ошибка:${e}`)
+              return
+          }
           this.$emit('click-login', this.login, this.password.text)
         },
         async logIn () {

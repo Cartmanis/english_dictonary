@@ -1,7 +1,7 @@
 <template>
   <v-app>
     <v-content>
-      <Login show-password :registration="registration" @click-login="onLogin"/>
+      <Login :controler="controler" show-password :registration="registration" @click-login="onLogin"/>
     </v-content>
   </v-app>
 </template>
@@ -16,7 +16,17 @@ export default {
   },
   data () {
     return {
+      controler: {
+          ip: window.location.hostname,
+          port: 27333,
+          url: "api/v1/login"
+      },
       registration: {
+        controler :{
+            ip: window.location.hostname,
+            port: 27333,
+            url: "api/v1/add_user"
+        },
         login: {max: 14, character:true, name:"login"},
         password: {min: 6, name:"password"},
         email: {required: true, name:"email"},
