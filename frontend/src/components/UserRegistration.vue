@@ -177,7 +177,7 @@
                         `минимальное количество символов: ${this.checker.login.min}`,
                     characterLogin: value => {
                         const pattern = /(?=.*[a-zA-Z])/
-                        return (!value || pattern.test((value))) || 'необходма латинская буква'
+                        return (!this.checker.login.character || pattern.test((value))) || 'необходма латинская буква'
                     },
                     passwordValid: value => {
                         const pattern = /(?=.*[0-9])(?=.*[a-zA-Zа-яА-Я])/
