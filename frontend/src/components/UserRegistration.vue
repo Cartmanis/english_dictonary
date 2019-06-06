@@ -17,7 +17,7 @@
                                 <v-flex xs12>
                                     <v-text-field label="Имя пользователя*" prepend-icon="person"
                                                   v-model="login"
-                                                  :rules="[rules.required, rules.maxLogin, rules.minLogin]"
+                                                  :rules="[rules.required, rules.maxLogin, rules.minLogin, rules.characterLogin]"
                                     ></v-text-field>
                                 </v-flex>
                                 <v-flex xs12>
@@ -124,6 +124,7 @@
                       this.showSnackBar(res.data.error, "warning")
                       return
                   }
+                  this.snackbar.show = false
                   this.$emit('closed', false)
               } catch (e) {
                   this.showSnackBar(`не удалось сохранить пользователя. Ошибка: ${e}`)
@@ -154,6 +155,7 @@
                     login: {
                         min: (this.registration && this.registration.login && this.registration.login.min) || 3,
                         max: (this.registration && this.registration.login && this.registration.login.max)  || 20,
+                        character: (this.registration && this.registration.login && this.registration.login.character) || false
                     },
                     password: {
                         min: (this.registration && this.registration.password && this.registration.password.min)  || 8
@@ -173,7 +175,10 @@
                         `максимальное количество символов: ${this.checker.login.max}`,
                     minLogin: value => !value || value.length >= this.checker.login.min ||
                         `минимальное количество символов: ${this.checker.login.min}`,
-
+                    characterLogin: value => {
+                        const pattern = /(?=.*[a-zA-Z])/
+                        return (!value || pattern.test((value))) || 'необходма латинская буква'
+                    },
                     passwordValid: value => {
                         const pattern = /(?=.*[0-9])(?=.*[a-zA-Zа-яА-Я])/
                         return pattern.test(value) || 'пароль должен содержать символы и цифры'
