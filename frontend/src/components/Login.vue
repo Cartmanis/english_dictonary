@@ -85,12 +85,18 @@
         },
         switchLogin(typeAuth, login, password) {
             const url = `http://${this.controler.ip}:${this.controler.port}/${this.controler.url}`
+            const credentials = btoa(`${login}:${password}`)
             switch (typeAuth.toLowerCase()) {
                 case 'basic':
-                    const credentials = btoa(`${login}:${password}`)
-                    return axios.post(url, {}, { headers: {'Authorization': `Basic ${credentials}`}})
+                    return axios.post(url, {}, {
+                        headers: {'Authorization': `Basic ${credentials}`},
+                        withCredentials: true
+                    })
                 default:
-                    return ""
+                    return axios.post(url, {}, {
+                        headers: {'Authorization': `Basic ${credentials}`},
+                        withCredentials: true
+                    })
             }
         },
         onClosed () {
@@ -107,6 +113,7 @@
           try {
               const res = await this.switchLogin('basic', this.login, this.password.text)
               if (res && res.data && res.data.result) {
+                  console.log(res)
                   this.$emit('click-login', true)
               } else {
                   this.error = true

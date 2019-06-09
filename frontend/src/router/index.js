@@ -5,15 +5,23 @@ import Login from '@/components/Login'
 
 Vue.use(VueRouter)
 
-const isAuth = (to, from, next) => {
-    const authUser = JSON.parse(window.localStorage.getItem('login'))
+const axios = require('axios').default
 
-    if (authUser) {
-        next()
-        return
+const isAuth = async (to, from, next) => {
+    const url = "http://localhost:27333/api/v1/auth"
+    try {
+        const res = await axios.post(url, {}, {withCredentials:true})
+        if (res && res.data && res.data.result) {
+            next()
+            return
+        }
+    } catch (e) {
+        console.log(e)
     }
     next('/login')
 }
+
+
 
 const routes = [
     {
