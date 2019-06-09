@@ -1,19 +1,22 @@
 <template>
   <v-app>
     <v-content>
-      <Login :controler="controler" show-password :registration="registration" @click-login="onLogin"/>
+      <!--<Login :controler="controler" show-password :registration="registration" @click-login="onLogin"/>-->
+      <router-view/>
     </v-content>
   </v-app>
 </template>
 
 <script>
 import Login from './components/Login'
+import Main from './components/Main'
 
 export default {
   name: 'App',
-  components: {
-    Login
-  },
+  // components: {
+  //   Main,
+  //   Login
+  // },
   data () {
     return {
       controler: {
@@ -35,9 +38,13 @@ export default {
     }
   },
   methods: {
-    onLogin(login, password) {
-      console.log(login)
-      console.log(password)
+    onLogin(isAuth) {
+        console.log(isAuth)
+        if (isAuth) {
+            console.log('попали')
+            this.$router.push('/')
+        }
+      
     }
   }
 }

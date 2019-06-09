@@ -83,6 +83,16 @@
             this.snackbar.text = text
             this.snackbar.color = color || "error"
         },
+        switchLogin(typeAuth, login, password) {
+            const url = `http://${this.controler.ip}:${this.controler.port}/${this.controler.url}`
+            switch (typeAuth.toLowerCase()) {
+                case 'basic':
+                    const credentials = btoa(`${login}:${password}`)
+                    return axios.post(url, {}, { headers: {'Authorization': `Basic ${credentials}`}})
+                default:
+                    return ""
+            }
+        },
         onClosed () {
           this.showAuth = false
         },
@@ -93,22 +103,25 @@
           if (!this.controler) {
               return
           }
-          const url = `http://${this.controler.ip}:${this.controler.port}/${this.controler.url}`
-            auth = {
-              login: this.login,
-              password: this.password
-            }
-            const data = new FormData()
-            data.append('login', this.login)
-            data.append('password', this.password.text)
+          this.error = false
           try {
-              const res = await axios.post(`${url}`, data)
-              console.log(res)
+              const res = await this.switchLogin('basic', this.login, this.password.text)
+              if (res && res.data && res.data.result) {
+                  this.$emit('click-login', true)
+              } else {
+                  this.error = true
+                  this.$emit('click-login', false)
+              }
+              
           } catch (e) {
-              this.showSnackBar(`не удалось произвести авторизацию. Ошибка:${e}`)
-              return
+              if (e && e.response && e.response.data) {
+                  this.error = true
+                  this.$emit('click-login', false)
+                  return
+              }
+              this.showSnackBar(`не удалось произвести авторизацию. ${e}`)
           }
-          this.$emit('click-login', this.login, this.password.text)
+          
         },
         async logIn () {
           const res = await controller.login(this.auth.login, this.auth.password)

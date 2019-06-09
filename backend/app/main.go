@@ -51,7 +51,7 @@ func main() {
 		return
 	}
 
-	go RunRest(m)
+	go  RunRest(m)
 	for {
 		time.Sleep(10 * time.Minute)
 	}
