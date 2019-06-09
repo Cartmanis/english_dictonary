@@ -3,6 +3,7 @@
         <v-snackbar
           v-model="snackbar.show"
           :color="snackbar.color"
+          :multi-line=true
           :timeout="10000"
         >{{snackbar.text}}</v-snackbar>
         <v-dialog v-model="show" persistent :max-width="width">
@@ -179,7 +180,7 @@
                     minLogin: value => !value || value.length >= this.checker.login.min ||
                         `минимальное количество символов: ${this.checker.login.min}`,
                     characterLogin: value => {
-                        const pattern = /(?=.*[a-zA-Z])/
+                        const pattern = /^[a-zA-Z0-9]/
                         return (!this.checker.login.character || pattern.test((value))) || 'необходма латинская буква'
                     },
                     passwordValid: value => {

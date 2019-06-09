@@ -3,6 +3,7 @@
     <v-snackbar
       v-model="snackbar.show"
       :color="snackbar.color"
+      :multi-line=true
       :timeout="10000"
     >{{snackbar.text}}</v-snackbar>
     <v-layout align-center justify-center>
@@ -85,19 +86,24 @@
         },
         switchLogin(typeAuth, login, password) {
             const url = `http://${this.controler.ip}:${this.controler.port}/${this.controler.url}`
-            const credentials = btoa(`${login}:${password}`)
-            switch (typeAuth.toLowerCase()) {
+            try {
+              const credentials = btoa(`${login}:${password}`)
+              switch (typeAuth.toLowerCase()) {
                 case 'basic':
-                    return axios.post(url, {}, {
-                        headers: {'Authorization': `Basic ${credentials}`},
-                        withCredentials: true
-                    })
+                  return axios.post(url, {}, {
+                    headers: {'Authorization': `Basic ${credentials}`},
+                    withCredentials: true
+                  })
                 default:
-                    return axios.post(url, {}, {
-                        headers: {'Authorization': `Basic ${credentials}`},
-                        withCredentials: true
-                    })
+                  return axios.post(url, {}, {
+                    headers: {'Authorization': `Basic ${credentials}`},
+                    withCredentials: true
+                  })
+              }
+            } catch (e) {
+              this.error = true
             }
+
         },
         onClosed () {
           this.showAuth = false

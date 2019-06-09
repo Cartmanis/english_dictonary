@@ -13,7 +13,7 @@ const (
 )
 
 func (s *Rest) run(w http.ResponseWriter, r *http.Request) {
-	ok, id := s.isAuthSession(w, r)
+	ok, id, _ := s.isAuthSession(w, r)
 	if !ok {
 		SendJSON(w, r, 401, map[string]bool{"result": false})
 		return
@@ -57,7 +57,7 @@ func (s *Rest) newWord(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	//стоит ли делать всегда авторизацию???
-	ok, userId := s.isAuthSession(w, r)
+	ok, userId, _ := s.isAuthSession(w, r)
 	if !ok {
 		SendJSON(w, r, 401, map[string]bool{"result": false})
 		return
@@ -85,7 +85,7 @@ func (s *Rest) deleteWord(w http.ResponseWriter, r *http.Request) {
 	if !checkInitRest(s, w, r) {
 		return
 	}
-	ok, id := s.isAuthSession(w, r)
+	ok, id, _ := s.isAuthSession(w, r)
 	if !ok {
 		SendJSON(w, r, 401, map[string]bool{"result": false})
 		return
@@ -114,7 +114,7 @@ func (s *Rest) forgetWord(w http.ResponseWriter, r *http.Request) {
 	if !checkInitRest(s, w, r) {
 		return
 	}
-	ok, id := s.isAuthSession(w, r)
+	ok, id, _ := s.isAuthSession(w, r)
 	if !ok {
 		SendJSON(w, r, 401, map[string]bool{"result": false})
 		return

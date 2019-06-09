@@ -16,16 +16,16 @@ var (
 )
 
 func (s *Rest) autharization(w http.ResponseWriter, r *http.Request) {
-	ok, id := s.isAuthSession(w, r)
+	ok, id, userName := s.isAuthSession(w, r)
 	if !ok {
 		SendJSON(w, r, 401, map[string]bool{"result": false})
 		return
 	}
-	SendJSON(w, r, 200, map[string]bool{"result": true})
+	SendJSON(w, r, 200, map[string]interface{}{"result": true, "user": userName})
 	fmt.Println(id) //используем полученного user далее в коде
 }
 
-func (s *Rest) isAuthSession(w http.ResponseWriter, r *http.Request) (bool, string) {
+func (s *Rest) isAuthSession(w http.ResponseWriter, r *http.Request) (bool, string, string) {
 	//Реализация с session
 	//session, err := store.Get(r, "user_session")
 	//if err != nil {
@@ -37,17 +37,17 @@ func (s *Rest) isAuthSession(w http.ResponseWriter, r *http.Request) (bool, stri
 	//}
 	c, err := r.Cookie("token")
 	if err != nil {
-		return false, ""
+		return false, "", ""
 	}
 	id, err := verifyJwtToken(c.Value)
 	if err != nil {
-		return false, ""
+		return false, "", ""
 	}
-	_, err = service.FindUserByIdUser(id, s.mongo)
+	user, err := service.FindUserByIdUser(id, s.mongo)
 	if err != nil {
-		return false, ""
+		return false, "", ""
 	}
-	return true, id
+	return true, id, user.Login
 }
 
 func (s *Rest) login(w http.ResponseWriter, r *http.Request) {

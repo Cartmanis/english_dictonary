@@ -33,6 +33,7 @@ const routes = [
               port: 27333,
               url: "api/v1/login"
           },
+          showPassword: true,
           registration: {
               controler :{
                   ip: window.location.hostname,
@@ -50,7 +51,7 @@ const routes = [
         path: '/',
         name: 'main',
         component: Main,
-        beforeEnter: isAuth
+        beforeEnter: isAuth,
     }
 ]
 
