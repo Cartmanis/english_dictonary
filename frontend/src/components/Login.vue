@@ -113,7 +113,6 @@
           try {
               const res = await this.switchLogin('basic', this.login, this.password.text)
               if (res && res.data && res.data.result) {
-                  console.log(res)
                   this.$emit('click-login', true)
               } else {
                   this.error = true

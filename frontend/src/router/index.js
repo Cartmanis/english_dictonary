@@ -15,13 +15,12 @@ const isAuth = async (to, from, next) => {
             next()
             return
         }
+        next('/login')
     } catch (e) {
-        console.log(e)
+        next('/login')
     }
-    next('/login')
+
 }
-
-
 
 const routes = [
     {
