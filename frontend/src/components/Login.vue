@@ -86,22 +86,20 @@
         },
         switchLogin(typeAuth, login, password) {
             const url = `http://${this.controler.ip}:${this.controler.port}/${this.controler.url}`
-            try {
-              const credentials = btoa(`${login}:${password}`)
-              switch (typeAuth.toLowerCase()) {
-                case 'basic':
-                  return axios.post(url, {}, {
-                    headers: {'Authorization': `Basic ${credentials}`},
-                    withCredentials: true
-                  })
-                default:
-                  return axios.post(url, {}, {
-                    headers: {'Authorization': `Basic ${credentials}`},
-                    withCredentials: true
-                  })
-              }
-            } catch (e) {
-              this.error = true
+            //для того, чтобы не было исключения для кирилических символов необходимо использовать обёртку unescape(encodeURIComponent(str)
+            const credentials = btoa(unescape(encodeURIComponent(`${login}:${password}`)))
+
+            switch (typeAuth.toLowerCase()) {
+              case 'basic':
+                return axios.post(url, {}, {
+                  headers: {'Authorization': `Basic ${credentials}`},
+                  withCredentials: true
+                })
+              default:
+                return axios.post(url, {}, {
+                  headers: {'Authorization': `Basic ${credentials}`},
+                  withCredentials: true
+                })
             }
 
         },
