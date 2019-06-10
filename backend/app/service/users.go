@@ -32,13 +32,23 @@ func InsertUser(login, pass, email, phone string, m *provider_db.MongoClient) (i
 	type filter struct {
 		Login string
 	}
-	count, err := m.Count(&filter{login}, users)
+	countLogin, err := m.Count(&filter{login}, users)
 	if err != nil {
 		return nil, err
 	}
-	if count >= 1 {
+	if countLogin >= 1 {
 		return nil, fmt.Errorf("Пользователь с именем %v уже существует. Используйте другое имя для регистрации.", login)
 	}
+	if email != "" {
+		countEmail, err := m.Count(map[string]string{"email": email}, users)
+		if err != nil {
+			return nil, err
+		}
+		if countEmail >= 1 {
+			return nil, fmt.Errorf("Пользователь с email %v уже зарегистрирован в системе.", email)
+		}
+	}
+
 	passHash, err := crypto.GetHashPassword(pass)
 	if err != nil {
 		return nil, err
