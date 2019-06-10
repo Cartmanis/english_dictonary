@@ -180,8 +180,9 @@
                     minLogin: value => !value || value.length >= this.checker.login.min ||
                         `минимальное количество символов: ${this.checker.login.min}`,
                     characterLogin: value => {
-                        const pattern = /(?=.*[a-zA-Zа-яА-Я])/
-                        return (!this.checker.login.character || pattern.test((value))) || 'необходма латинская буква'
+                        const pattern = /^[a-zA-Zа-яА-Я][0-9a-zA-Zа-яА-Я]+$/
+                        // return (!this.checker.login.character || pattern.test((value))) || 'необходма латинская буква'
+                        return pattern.test((value)) || 'имя пользователя может содержать цирфры и буквы, первый символ - буква'
                     },
                     passwordValid: value => {
                         const pattern = /(?=.*[0-9])(?=.*[a-zA-Zа-яА-Я])/
