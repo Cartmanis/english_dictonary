@@ -21,13 +21,18 @@
           <v-icon>more_vert</v-icon>
         </v-btn>
       </v-toolbar>
+      <words></words>
     </v-card>
   </div>
 </template>
 
 <script>
   const axios = require('axios').default
+  import Words from './Words'
   export default {
+    components: {
+      Words
+    },
     data: () => ({
       snackbar: {
         show: false,

@@ -131,17 +131,6 @@
               }
               this.showSnackBar(`не удалось произвести авторизацию. ${e}`)
           }
-          
-        },
-        async logIn () {
-          const res = await controller.login(this.auth.login, this.auth.password)
-          console.log(res.data.error, ' - ', res.data.is_login)
-          if (!res.data.error && res.data.is_login === 'true') {
-            window.localStorage.setItem('login', true)
-            this.$router.push('/admin')
-          } else {
-            this.error = true
-          }
         }
       }
     }

@@ -13,7 +13,7 @@
                 </v-card-title>
                 <v-card-text>
                     <v-container grid-list-md>
-                        <form @submit.prevent="onSumbit">
+                        <form>
                             <v-layout wrap>
                                 <v-flex xs12>
                                     <v-text-field label="Имя пользователя*" prepend-icon="person"
