@@ -47,6 +47,16 @@
 
                                     </v-text-field>
                                 </v-flex>
+                                <template>
+                                    <v-flex xs12 v-show = "confirmEmail.showText">
+                                        <v-label text-color ="success">На ваш электронный адрес отправлено письмо со ссылкой на подтверждение регистрации. Перейдите в почту для завершения регистрации.</v-label>
+                                    </v-flex>
+                                    <v-flex xs12 v-show="confirmEmail.showBtn" >
+                                        <a target="_blank" :href="confirmEmail.url">
+                                            <v-btn @click="onClosed"  color="primary">Перейти в почту</v-btn>
+                                        </a>
+                                    </v-flex>
+                                </template>
                             </v-layout>
                         </form>
                     </v-container>
@@ -129,7 +139,12 @@
                       return
                   }
                   this.snackbar.show = false
-                  this.$emit('closed', false)
+                  this.confirmEmail.showText = true
+                  if (res && res.data && res.data.url) {
+                      this.confirmEmail.showBtn = true
+                      this.confirmEmail.url = res.data.url
+                      console.log("url:", this.confirmEmail.url)
+                  }
               } catch (e) {
                   this.showSnackBar(`не удалось сохранить пользователя. Ошибка: ${e}`)
               }
@@ -147,6 +162,11 @@
                     show: false,
                     text: "",
                     color: ""
+                },
+                confirmEmail: {
+                    showText: false,
+                    showBtn: false,
+                    url: "",
                 },
                 login:"",
                 password: {

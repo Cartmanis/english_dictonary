@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/cartmanis/english_dictonary/backend/app/provider_db"
 	"math/rand"
+	"net/smtp"
 	"time"
 )
 
@@ -17,6 +18,59 @@ type Service struct {
 	mongo    *provider_db.MongoClient
 	idUser   string
 	interval int
+}
+
+func SendEmail(message, email string) error {
+	const smtpServer = "smtp.yandex.ru"
+	const mailSender = "cartmanis@yandex.ru"
+	const password = "5eu7ve"
+	//tlsconfig := &tls.Config {
+	//	InsecureSkipVerify: true,
+	//	ServerName: "smtp.gmail.com",
+	//}
+	//conn , err  := tls.Dial ("tcp",  smtpServer+":465", tlsconfig)
+	//if err != nil {
+	//	return err
+	//}
+	//defer conn.Close()
+	//client, err := smtp.NewClient(conn, smtpServer)
+	//if err != nil {
+	//	return err
+	//}
+	//defer client.Close()
+	//
+
+	//if err := client.Mail(mailSender); err != nil {
+	//	return err
+	//}
+	//if err := client.Rcpt(email); err != nil {
+	//	return err
+	//}
+	//wc, err := client.Data()
+	//if err != nil {
+	//	return err
+	//}
+	//defer wc.Close()
+	//buf := bytes.NewBufferString(msg)
+	//if _, err = buf.WriteTo(wc); err != nil {
+	//	return err
+	//}
+	//client.Quit()
+	msg := "From: dictonaryyys\r\n " +
+		"To: " + email + "\r\n" +
+		"Subject: Активация аккаунта english_dictonary\r\n" +
+		"\r\n" +
+		"Регистрация почти закончена, осталось только подтвердить электронную почту, указанную при регистрации\r\n" +
+		"Для подтверждения регистрации на dictonary_english необходимо перейти по ссылке:.\r\n" +
+		"<button>Кнопка регистрации</button>" + "\r\n" +
+		"http://127.0.0.1:27333/api/v1/activate?id=177891\r\n"
+	auth := smtp.PlainAuth("", mailSender, password, smtpServer)
+
+	if err := smtp.SendMail(smtpServer+":587", auth, mailSender,
+		[]string{email}, []byte(msg)); err != nil {
+		return err
+	}
+	return nil
 }
 
 func checkService(s *Service) error {

@@ -33,12 +33,12 @@
             <v-btn @click ="onLogin" color="primary">Вход</v-btn>
             <v-spacer></v-spacer>
             <v-btn flat @click = "onClosed" color="primary">Закрыть</v-btn>
-            <v-btn flat v-show = "registration" @click="onRegistration" color="info">Регистрация</v-btn>
+            <v-btn small flat v-show = "registration" @click="onRegistration" color="info">Регистрация</v-btn>
           </v-card-actions>
         </v-card>
       </v-flex>
     </v-layout>
-    <user-registration width="620px" :registration="registration"
+    <user-registration width="700px" :registration="registration"
                        :show=userRegistration  @closed="userRegistration=$event"></user-registration>
   </v-container>
 </template>

@@ -39,17 +39,25 @@ func (s *Rest) newUser(w http.ResponseWriter, r *http.Request) {
 	password := r.PostFormValue("password")
 	email := r.PostFormValue("email")
 	phone := r.PostFormValue("phone")
-	if login == "" || password == "" || email == "" {
-		SendErrorJSON(w, r, 400, "не заполнены обязательные поля login, password, email", nil)
+	if login == "" || password == "" {
+		SendErrorJSON(w, r, 400, "не заполнены имя пользователя или пароль", nil)
 		return
 	}
-	id, err := service.InsertUser(login, password, email, phone, s.mongo)
+	if err := checkEmail(email); err != nil {
+		SendErrorJSON(w, r, 400, "не корректно заполнен email", err)
+		return
+	}
+	if err := service.SendEmail("Hello, mail", email); err != nil {
+		SendErrorJSON(w, r, 500, "не удалось отправить ссылку подтвержения на электронный адрес", err)
+		return
+	}
+	_, err := service.InsertUser(login, password, email, phone, s.mongo)
 	if err != nil {
 		SendErrorJSON(w, r, 200, "не удалось зарегистрировать пользователя", err)
 		return
 	}
-	fmt.Println(id)
-	SendJSON(w, r, 200, map[string]bool{"result": true})
+	urlEmail := getUrlUserEmail(email)
+	SendJSON(w, r, 200, map[string]interface{}{"result": true, "url": urlEmail})
 }
 
 func (s *Rest) newWord(w http.ResponseWriter, r *http.Request) {
