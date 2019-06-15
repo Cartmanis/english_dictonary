@@ -47,13 +47,21 @@ func (s *Rest) newUser(w http.ResponseWriter, r *http.Request) {
 		SendErrorJSON(w, r, 400, "не корректно заполнен email", err)
 		return
 	}
-	if err := service.SendEmail("Hello, mail", email); err != nil {
-		SendErrorJSON(w, r, 500, "не удалось отправить ссылку подтвержения на электронный адрес", err)
-		return
-	}
-	_, err := service.InsertUser(login, password, email, phone, s.mongo)
+
+	urlConfirm, err := getUrlConfirmEmail()
 	if err != nil {
 		SendErrorJSON(w, r, 200, "не удалось зарегистрировать пользователя", err)
+		return
+	}
+	fmt.Println(urlConfirm)
+
+	_, err = service.InsertUser(login, password, email, phone, s.mongo)
+	if err != nil {
+		SendErrorJSON(w, r, 200, "не удалось зарегистрировать пользователя", err)
+		return
+	}
+	if err := service.SendEmail("http://127.0.0.1:27333/api/v1/activate?id=177891", email); err != nil {
+		SendErrorJSON(w, r, 500, "не удалось отправить ссылку подтвержения на электронный адрес", err)
 		return
 	}
 	urlEmail := getUrlUserEmail(email)

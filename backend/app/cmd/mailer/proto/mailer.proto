@@ -10,7 +10,8 @@ service Mailer {
 
 message MsgRequest {
     string to = 1;
-    string msg = 2;
+    string subject = 2;
+    string msg = 3;
 }
 
 //формат данных для сообщения MsgReply

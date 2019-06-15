@@ -2,6 +2,7 @@ package rest
 
 import (
 	"fmt"
+	"net"
 	"net/http"
 	"strings"
 )
@@ -66,4 +67,32 @@ func getUrlUserEmail(email string) string {
 		return ""
 	}
 	return mapEmails[arr[1]]
+}
+
+func getUrlConfirmEmail() (string, error) {
+	ifaces, err := net.Interfaces()
+	if err != nil {
+		return "", err
+	}
+	for _, i := range ifaces {
+		if i.Name != "enp3s0" {
+			continue
+		}
+		listAddr, err := i.Addrs()
+		if err != nil {
+			return "", err
+		}
+		for _, addr := range listAddr {
+			var ip net.IP
+			switch v := addr.(type) {
+			case *net.IPNet:
+				ip = v.IP
+			}
+			if len(ip.To4()) == 4 {
+				return fmt.Sprintf("http://%v:27333/api/v1/activate?id=177891", ip.String()), nil
+			}
+		}
+
+	}
+	return "", fmt.Errorf("не возможно определить ipV4 адрес у сервера")
 }

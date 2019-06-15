@@ -37,14 +37,15 @@ message MsgReply {
 
 */
 func (s *server) SendMail(ctx context.Context, input *pb.MsgRequest) (*pb.Result, error) {
-
 	//В переменную m считываем MsgRequest(смотрим в mail.proto, чтобы вспомнить, что это).
-	m := Message{fmt.Sprintf("%s <%s>", cnf.serviceName, cnf.from), input.To, input.Msg, passtpl}
-	fmt.Println(m)
+	m := Message{fmt.Sprintf("%v", cnf.from),
+		input.To, input.Subject, input.Msg, tplActivate}
 
-	//А вот дальше нам надо записать полученное сообщение в очередь.
-	//Сделать нам это нужно в неблокирующем стиле, для этого используем select.
+	if err := messageLoop(m); err != nil {
+		return &pb.Result{Sent: true}, err
+	}
 
+	//Ну, а если все хорошо,  отвечаем клиенту true
 	return &pb.Result{Sent: true}, nil
 }
 

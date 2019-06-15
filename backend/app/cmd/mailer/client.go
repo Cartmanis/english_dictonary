@@ -49,14 +49,14 @@ func ConnectClient(ip string, port int) error {
 
 	*/
 
-	rply, err := c.SendMail(ctx, &pb.MsgRequest{To: "Кому письмо", Msg: "Текст письма"})
+	rply, err := c.SendMail(ctx, &pb.MsgRequest{To: "VShmelcer@gmail.com", Msg: "Текст письма"})
 	if err != nil {
 		return err
 	}
 	log.Println(rply.Sent)
 
 	//Шлём запрос 2, ожидаем false
-	rply, err = c.RetrievePass(ctx, &pb.MsgRequest{To: "Кому письмо2", Msg: "Текст письма2"})
+	rply, err = c.RetrievePass(ctx, &pb.MsgRequest{To: "jhaine1984@gmail.com", Msg: "Текст письма2"})
 	if err != nil {
 		return err
 	}
