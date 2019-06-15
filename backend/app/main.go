@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/cartmanis/english_dictonary/backend/app/cmd/lg"
+	"github.com/cartmanis/english_dictonary/backend/app/cmd/mailer"
 	"github.com/cartmanis/english_dictonary/backend/app/provider_db"
 	"github.com/cartmanis/english_dictonary/backend/app/service"
 	"os"
@@ -50,8 +51,9 @@ func main() {
 		lg.Error("не удалось проверить или добавить уникальный индекс для поля login. Ошибка:", err)
 		return
 	}
-
-	go  RunRest(m)
+	grpcServ := mailer.NewGrpcServer(27111)
+	go grpcServ.StartGrpcSever()
+	go RunRest(m)
 	for {
 		time.Sleep(10 * time.Minute)
 	}

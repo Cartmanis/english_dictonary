@@ -1,0 +1,20 @@
+syntax = "proto3"; //указываем версию protocol buffers - третью
+
+//Наш сервис будет называться Mailer и содержать два метода - SendPass и RetrievePass
+//Оба метода по сути одинаковы, будут принимать сообщения MsgRequest, на которые ответят MsgReply
+
+service Mailer {
+    rpc SendMail(MsgRequest) returns (Result) {}
+    rpc RetrievePass(MsgRequest) returns (Result) {}
+}
+
+message MsgRequest {
+    string to = 1;
+    string msg = 2;
+}
+
+//формат данных для сообщения MsgReply
+//одно поле - булеан, название sent
+message Result {
+    bool sent = 1;
+}

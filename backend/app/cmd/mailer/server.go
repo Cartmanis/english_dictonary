@@ -1,0 +1,81 @@
+package mailer
+
+import (
+	"context"
+	"fmt"
+	"github.com/cartmanis/english_dictonary/backend/app/cmd/lg"
+	pb "github.com/cartmanis/english_dictonary/backend/app/cmd/mailer/proto"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/reflection"
+	"net"
+)
+
+//Структура нашего gRPC сервера
+type server struct {
+	port int
+}
+
+func NewGrpcServer(port int) *server {
+	return &server{port: port}
+}
+
+/*
+
+Методы структуры SendMail и RetrievePass принимают контекст и входящее сообщение,
+формат которого мы описали в proto-файле вот так:
+
+message MsgRequest {
+    string to = 1;
+    string code = 2;
+}
+
+Формат ответного сообщения в прото-файле был такой:
+
+message MsgReply {
+    bool sent = 1;
+}
+
+*/
+func (s *server) SendMail(ctx context.Context, input *pb.MsgRequest) (*pb.Result, error) {
+
+	//В переменную m считываем MsgRequest(смотрим в mail.proto, чтобы вспомнить, что это).
+	m := Message{fmt.Sprintf("%s <%s>", cnf.serviceName, cnf.from), input.To, input.Msg, passtpl}
+	fmt.Println(m)
+
+	//А вот дальше нам надо записать полученное сообщение в очередь.
+	//Сделать нам это нужно в неблокирующем стиле, для этого используем select.
+
+	return &pb.Result{Sent: true}, nil
+}
+
+func (s *server) RetrievePass(ctx context.Context, in *pb.MsgRequest) (*pb.Result, error) {
+
+	//А здесь ответим false
+
+	return &pb.Result{Sent: false}, nil
+}
+
+func (s *server) StartGrpcSever() {
+	if s == nil || s.port == 0 {
+		lg.Errorf("Не удалось запустить grpc сервер, так как порт не проиницилизирован")
+		return
+	}
+	listner, err := net.Listen("tcp", fmt.Sprintf(":%v", s.port))
+	if err != nil {
+		lg.Errorf("Не удалось запустить grpc сервер на порту %v. Ошибка:%v", s.port, err)
+		return
+	}
+
+	grpcServ := grpc.NewServer()
+
+	//Регистрируем связку сервер + listener
+	pb.RegisterMailerServer(grpcServ, &server{})
+	reflection.Register(grpcServ)
+
+	lg.Info("запущен grpc сервер на порту:", s.port)
+	if err = grpcServ.Serve(listner); err != nil {
+		lg.Errorf("Не удалось запустить grpc сервер на порту %v. Ошибка:%v", s.port, err)
+		return
+	}
+
+}
