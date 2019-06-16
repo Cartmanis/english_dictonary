@@ -12,6 +12,10 @@ const (
 	english = "english"
 )
 
+func (s *Rest) activate(w http.ResponseWriter, r *http.Request) {
+
+}
+
 func (s *Rest) run(w http.ResponseWriter, r *http.Request) {
 	ok, id, _ := s.isAuthSession(w, r)
 	if !ok {
@@ -48,19 +52,23 @@ func (s *Rest) newUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	urlConfirm, err := getUrlConfirmEmail()
+	objectId, err := service.InsertUser(login, password, email, phone, s.mongo)
 	if err != nil {
 		SendErrorJSON(w, r, 200, "не удалось зарегистрировать пользователя", err)
 		return
 	}
-	fmt.Println(urlConfirm)
+	id, err := service.GetIdString(objectId)
+	if err != nil {
+		SendErrorJSON(w, r, 500, "не удалось зарегистрировать пользователя", err)
+		return
+	}
+	urlConfirm, err := getUrlConfirmEmail(id)
+	if err != nil {
+		SendErrorJSON(w, r, 200, "не удалось зарегистрировать пользователя", err)
+		return
+	}
 
-	_, err = service.InsertUser(login, password, email, phone, s.mongo)
-	if err != nil {
-		SendErrorJSON(w, r, 200, "не удалось зарегистрировать пользователя", err)
-		return
-	}
-	if err := service.SendEmail("http://127.0.0.1:27333/api/v1/activate?id=177891", email); err != nil {
+	if err := service.SendEmail(urlConfirm, email); err != nil {
 		SendErrorJSON(w, r, 500, "не удалось отправить ссылку подтвержения на электронный адрес", err)
 		return
 	}

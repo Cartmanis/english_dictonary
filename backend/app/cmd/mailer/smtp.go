@@ -6,6 +6,7 @@ import (
 	"html/template"
 	"net"
 	"net/smtp"
+	"os"
 )
 
 const (
@@ -34,17 +35,17 @@ var cnf config
 var tpl *template.Template
 
 func init() {
-	const (
-		smptpYandex = "smtp.yandex.ru:465"
-		userYandex  = "englishDictonary@yandex.ru"
-		passYandex  = "5eu7ve"
+	var (
+		smtpYandex = "smtp.yandex.ru:465"
+		userYandex = os.Getenv("SMTP_USER_YANDEX")
+		passYandex = os.Getenv("SMTP_PASS_YANDEX")
 
-		smptpGoogle = "smtp.gmail.com:465"
-		userGoogle  = "VShmelcer@gmail.com"
-		passGoogle  = "5eu7ve5eu7ve"
+		//smtpGoogle = "smtp.gmail.com:465"
+		//userGoogle  = os.Getenv("SMTP_USER_GOOGLE")
+		//passGoogle  = os.Getenv("SMTP_PASS_GOOGLE")
 	)
 	cnf = config{
-		smtphost:    smptpYandex,
+		smtphost:    smtpYandex,
 		user:        userYandex,
 		password:    passYandex,
 		from:        userYandex,

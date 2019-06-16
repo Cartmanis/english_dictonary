@@ -5,6 +5,7 @@ import (
 	"fmt"
 	pb "github.com/cartmanis/english_dictonary/backend/app/cmd/mailer/proto"
 	"github.com/cartmanis/english_dictonary/backend/app/provider_db"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"google.golang.org/grpc"
 	"math/rand"
 	"time"
@@ -20,6 +21,16 @@ type Service struct {
 	mongo    *provider_db.MongoClient
 	idUser   string
 	interval int
+}
+
+func GetIdString(id interface{}) (string, error) {
+	switch t := id.(type) {
+	case primitive.ObjectID:
+		return t.Hex(), nil
+	default:
+		return "", fmt.Errorf("не корректный входной параметр objectId")
+
+	}
 }
 
 func SendEmail(message, email string) error {

@@ -23,6 +23,7 @@ type NewUser struct {
 	Password string
 	Email    string
 	Phone    string `bson:",omitempty"`
+	Activate bool
 }
 
 func InsertUser(login, pass, email, phone string, m *provider_db.MongoClient) (interface{}, error) {
@@ -53,7 +54,7 @@ func InsertUser(login, pass, email, phone string, m *provider_db.MongoClient) (i
 	if err != nil {
 		return nil, err
 	}
-	newUser := &NewUser{login, passHash, email, phone}
+	newUser := &NewUser{login, passHash, email, phone, false}
 	return m.InsertOne(newUser, users)
 }
 

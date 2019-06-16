@@ -64,6 +64,7 @@ func (s *Rest) routes() chi.Router {
 
 func (s *Rest) groupRouteApiV1(groupRoute chi.Router) {
 	groupRoute.Group(func(r chi.Router) {
+		r.Get("/activate", s.activate)
 		r.Get("/run", s.run)
 		r.Post("/auth", s.autharization)
 		r.Post("/login", s.login)
