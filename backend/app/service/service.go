@@ -23,18 +23,20 @@ type Service struct {
 	interval int
 }
 
+func NewService(idUser string, interval int, m *provider_db.MongoClient) *Service {
+	return &Service{m, idUser, interval}
+}
+
 func GetIdString(id interface{}) (string, error) {
 	switch t := id.(type) {
 	case primitive.ObjectID:
 		return t.Hex(), nil
 	default:
 		return "", fmt.Errorf("не корректный входной параметр objectId")
-
 	}
 }
 
 func SendEmail(message, email string) error {
-
 	conn, err := grpc.Dial("127.0.0.1:27111", grpc.WithInsecure())
 	if err != nil {
 		return err
@@ -62,8 +64,26 @@ func checkService(s *Service) error {
 	return nil
 }
 
-func NewService(idUser string, interval int, m *provider_db.MongoClient) *Service {
-	return &Service{m, idUser, interval}
+func ActivateUser(userId string, m *provider_db.MongoClient) error {
+	if m == nil {
+		return fmt.Errorf("не установлено подключение к базе данных")
+	}
+
+	objectId, err := provider_db.GetObjectId(userId)
+	if err != nil {
+		return err
+	}
+	filter := map[string]interface{}{"_id": objectId}
+	update := map[string]bool{"activate": true}
+	result, err := m.UpdateOne(filter, update, "$set", users)
+	if err != nil {
+		return err
+	}
+	//if result.ModifiedCount == 0 {
+	//	return fmt.Errorf("не найдено пользователя, который может пройти активацию")
+	//}
+	fmt.Println(result)
+	return nil
 }
 
 func (s *Service) GetRandomWord() (*word, error) {

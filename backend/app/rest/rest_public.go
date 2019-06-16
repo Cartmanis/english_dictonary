@@ -13,11 +13,34 @@ const (
 )
 
 func (s *Rest) activate(w http.ResponseWriter, r *http.Request) {
+	if !checkInitRest(s, w, r) {
+		return
+	}
+	values := r.URL.Query()
+	userId := values.Get("id")
+	if err := service.ActivateUser(userId, s.mongo); err != nil {
+		SendErrorJSON(w, r, 500, "не удалось произвести активацию пользователя", err)
+		return
+	}
 
+	token, err := getJwtToken(userId)
+	if err != nil {
+		SendErrorJSON(w, r, 500, "не удалось создать jwt токен. Ошибка:", err)
+		return
+	}
+	c := &http.Cookie{
+		Name:     "token",
+		Value:    token,
+		Path:     "/",
+		Secure:   false, //cookie отсылаются на сервер только если запрос выполняется по протоколу SSL и HTTPS
+		HttpOnly: true,  //Куки HTTPonly не доступны из JavaScript через свойства Document.cookie API, что помогает избежать межсайтового скриптинга (XSS)
+	}
+	http.SetCookie(w, c)
+	http.Redirect(w, r, "http://192.168.0.83:8080", 303)
 }
 
 func (s *Rest) run(w http.ResponseWriter, r *http.Request) {
-	ok, id, _ := s.isAuthSession(w, r)
+	ok, _, id, _ := s.isAuthSession(w, r)
 	if !ok {
 		SendJSON(w, r, 401, map[string]bool{"result": false})
 		return
@@ -81,7 +104,7 @@ func (s *Rest) newWord(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	//стоит ли делать всегда авторизацию???
-	ok, userId, _ := s.isAuthSession(w, r)
+	ok, _, userId, _ := s.isAuthSession(w, r)
 	if !ok {
 		SendJSON(w, r, 401, map[string]bool{"result": false})
 		return
@@ -109,7 +132,7 @@ func (s *Rest) deleteWord(w http.ResponseWriter, r *http.Request) {
 	if !checkInitRest(s, w, r) {
 		return
 	}
-	ok, id, _ := s.isAuthSession(w, r)
+	ok, _, id, _ := s.isAuthSession(w, r)
 	if !ok {
 		SendJSON(w, r, 401, map[string]bool{"result": false})
 		return
@@ -138,7 +161,7 @@ func (s *Rest) forgetWord(w http.ResponseWriter, r *http.Request) {
 	if !checkInitRest(s, w, r) {
 		return
 	}
-	ok, id, _ := s.isAuthSession(w, r)
+	ok, _, id, _ := s.isAuthSession(w, r)
 	if !ok {
 		SendJSON(w, r, 401, map[string]bool{"result": false})
 		return

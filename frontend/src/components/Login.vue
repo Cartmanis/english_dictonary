@@ -26,7 +26,7 @@
               </v-text-field>
               <v-text-field v-else type ="password" v-model='password.text'
                             prepend-icon="lock" label="Пароль"></v-text-field>
-              <h4 v-if="error" align="center" style="color: red;">имя пользователя или пароль введены не верно</h4>
+              <h4 v-if="errorAuth.show" align="center" style="color: red;">{{errorAuth.text}}</h4>
             </v-form>
           </v-card-text>
           <v-card-actions>
@@ -59,7 +59,10 @@
             },
             showAuth:true,
             userRegistration : false,
-            error: false,
+            errorAuth: {
+              show: false,
+              text: "имя пользователя или пароль введены не верно"
+            } ,
             login: "",
             password: {
                 text: "",
@@ -124,8 +127,11 @@
               }
               
           } catch (e) {
-              if (e && e.response && e.response.data) {
-                  this.error = true
+              if (e && e.response && e.response.data && e.response.status) {
+                 this.errorAuth.show = true
+                if (e.response.status === 403) {
+                    this.errorAuth.text = `Пользователь ${this.login} не подтвердил адрес электронной почты. Необходимо перейти в электронную почту, указанную при регистрации и завершить регистрацию`
+                  }
                   this.$emit('click-login', false)
                   return
               }

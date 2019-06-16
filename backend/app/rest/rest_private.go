@@ -88,6 +88,7 @@ func getUrlConfirmEmail(userId string) (string, error) {
 			case *net.IPNet:
 				ip = v.IP
 			}
+
 			if len(ip.To4()) == 4 {
 				return fmt.Sprintf("http://%v:27333/api/v1/activate?id=%v", ip.String(), userId), nil
 			}

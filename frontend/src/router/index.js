@@ -8,7 +8,7 @@ Vue.use(VueRouter)
 const axios = require('axios').default
 
 const isAuth = async (to, from, next) => {
-    const url = "http://localhost:27333/api/v1/auth"
+    const url = "http://192.168.0.83:27333/api/v1/auth"
     try {
         const res = await axios.post(url, {}, {withCredentials:true})
         if (res && res.data && res.data.result) {

@@ -16,6 +16,7 @@ type User struct {
 	Id       interface{} `bson:"_id"`
 	Login    string
 	Password string
+	Activate bool
 }
 
 type NewUser struct {
@@ -97,26 +98,29 @@ func FindUserByIdUser(userId string, m *provider_db.MongoClient) (*User, error) 
 	return user, nil
 }
 
-func AuthUser(login, pass string, m *provider_db.MongoClient) (bool, string, error) {
+func AuthUser(login, pass string, m *provider_db.MongoClient) (bool, int, string, error) {
 	if m == nil {
-		return false, "", fmt.Errorf("не иницилизированная база данных mongoDb")
+		return false, 500, "", fmt.Errorf("не иницилизированная база данных mongoDb")
 	}
 	type filter struct {
 		Login string
 	}
 	listUser := make([]*User, 0)
 	if err := m.Find(&filter{login}, &listUser, users); err != nil {
-		return false, "", err
+		return false, 500, "", err
 	}
 	if len(listUser) == 0 {
-		return false, "", nil
+		return false, 401, "", nil
 	}
 	if len(listUser) > 1 {
-		return false, "", fmt.Errorf("не возможно однозначно идентифицировать. "+
+		return false, 500, "", fmt.Errorf("не возможно однозначно идентифицировать. "+
 			"Найдено более одного пользователя с login: %v", login)
 	}
 	if !crypto.CompareHashPassword(listUser[0].Password, pass) {
-		return false, "", nil
+		return false, 401, "", nil
 	}
-	return true, listUser[0].Id.(primitive.ObjectID).Hex(), nil
+	if !listUser[0].Activate {
+		return false, 403, "", nil
+	}
+	return true, 200, listUser[0].Id.(primitive.ObjectID).Hex(), nil
 }

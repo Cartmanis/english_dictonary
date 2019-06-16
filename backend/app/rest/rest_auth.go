@@ -51,58 +51,49 @@ func (s *Rest) confirmEmail(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Rest) autharization(w http.ResponseWriter, r *http.Request) {
-	ok, id, userName := s.isAuthSession(w, r)
+	ok, status, id, userName := s.isAuthSession(w, r)
 	if !ok {
-		SendJSON(w, r, 401, map[string]bool{"result": false})
+		SendJSON(w, r, status, map[string]bool{"result": false})
+		return
+	}
+	if status == 403 {
+		SendJSON(w, r, status, map[string]interface{}{"result": false, "user": userName})
 		return
 	}
 	SendJSON(w, r, 200, map[string]interface{}{"result": true, "user": userName})
 	fmt.Println(id) //используем полученного user далее в коде
 }
 
-func (s *Rest) isAuthSession(w http.ResponseWriter, r *http.Request) (bool, string, string) {
-	//Реализация с session
-	//session, err := store.Get(r, "user_session")
-	//if err != nil {
-	//	return false, ""
-	//}
-	//token := session.Values["user_id"]
-	//if token == nil {
-	//	return false, ""
-	//}
+func (s *Rest) isAuthSession(w http.ResponseWriter, r *http.Request) (bool, int, string, string) {
 	c, err := r.Cookie("token")
 	if err != nil {
-		return false, "", ""
+		return false, 401, "", ""
 	}
 	id, err := verifyJwtToken(c.Value)
 	if err != nil {
-		return false, "", ""
+		return false, 401, "", ""
 	}
 	user, err := service.FindUserByIdUser(id, s.mongo)
 	if err != nil {
-		return false, "", ""
+		return false, 401, "", ""
 	}
-	return true, id, user.Login
+	if !user.Activate {
+		return true, 403, "", user.Login
+	}
+	return true, 200, id, user.Login
 }
 
 func (s *Rest) login(w http.ResponseWriter, r *http.Request) {
 	login, password, _ := r.BasicAuth()
-	auth, userId, err := service.AuthUser(login, password, s.mongo)
+	auth, status, userId, err := service.AuthUser(login, password, s.mongo)
 	if err != nil {
 		SendErrorJSON(w, r, 500, "не удалось произвести авторизацию", err)
 		return
 	}
 	if !auth {
-		SendJSON(w, r, 401, map[string]bool{"result": false})
+		SendJSON(w, r, status, map[string]bool{"result": false})
 		return
 	}
-	//session, err := store.Get(r, "user_session")
-	//if err != nil {
-	//	SendErrorJSON(w, r, 500, "не удалось получить сессию", err)
-	//	return
-	//}
-	//store.Options.HttpOnly = true
-	//store.Options.MaxAge = 0
 	token, err := getJwtToken(userId)
 	if err != nil {
 		SendErrorJSON(w, r, 500, "не удалось создать jwt токен. Ошибка:", err)
@@ -116,12 +107,7 @@ func (s *Rest) login(w http.ResponseWriter, r *http.Request) {
 		HttpOnly: true,  //Куки HTTPonly не доступны из JavaScript через свойства Document.cookie API, что помогает избежать межсайтового скриптинга (XSS)
 	}
 	http.SetCookie(w, c)
-	//предыдущая реализация
-	//session.Values["token"] = token //jwt токен
-	//if err := session.Save(r, w); err != nil {
-	//	SendErrorJSON(w, r, 500, "не удалось сохранить сессию", err)
-	//	return
-	//}
+
 	SendJSON(w, r, 200, map[string]bool{"result": true})
 }
 
