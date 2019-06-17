@@ -1,13 +1,11 @@
 package rest
 
 import (
-	"bytes"
 	"fmt"
 	"github.com/cartmanis/english_dictonary/backend/app/service"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gorilla/sessions"
 	"net/http"
-	"net/smtp"
 	"os"
 	"time"
 )
@@ -16,39 +14,6 @@ var (
 	secretKey = []byte(os.Getenv("SECRET_KEY"))
 	store     = sessions.NewCookieStore(secretKey)
 )
-
-func (s *Rest) confirmEmail(w http.ResponseWriter, r *http.Request) {
-	const email = "VShmelcer@gmail.com"
-	const link = ""
-	const details = "не удалось подтвердить электронную почту"
-	// Connect to the remote SMTP server.
-	c, err := smtp.Dial("127.0.0.1:2525")
-	if err != nil {
-		SendErrorJSON(w, r, 500, details, err)
-		return
-	}
-	// Set the sender and recipient.
-	if err := c.Mail("sender@example.org"); err != nil {
-		SendErrorJSON(w, r, 500, details, err)
-		return
-	}
-	if err := c.Rcpt(email); err != nil {
-		SendErrorJSON(w, r, 500, details, err)
-		return
-	}
-	// Send the email body.
-	wc, err := c.Data()
-	if err != nil {
-		SendErrorJSON(w, r, 500, details, err)
-		return
-	}
-	defer wc.Close()
-	buf := bytes.NewBufferString("Please confirm this email " + link)
-	if _, err = buf.WriteTo(wc); err != nil {
-		SendErrorJSON(w, r, 500, details, err)
-	}
-	SendJSON(w, r, 200, map[string]bool{"result": true})
-}
 
 func (s *Rest) autharization(w http.ResponseWriter, r *http.Request) {
 	ok, status, id, userName := s.isAuthSession(w, r)

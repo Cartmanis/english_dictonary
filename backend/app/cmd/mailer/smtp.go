@@ -95,12 +95,16 @@ func messageLoop(m Message) error {
 		return err
 	}
 	defer client.Close()
+	//отправитель
 	if err := client.Mail(cnf.user); err != nil {
 		return err
 	}
+	//получатель
 	if err := client.Rcpt(m.To); err != nil {
 		return err
 	}
+	//write для отправки
+
 	writeCloser, err := client.Data()
 	if err != nil {
 		return err
@@ -109,9 +113,11 @@ func messageLoop(m Message) error {
 	if err != nil {
 		return err
 	}
+	//отправка почты
 	if _, err = writeCloser.Write(data); err != nil {
 		return err
 	}
+	//закрытия соединения
 	if err := writeCloser.Close(); err != nil {
 		return err
 	}

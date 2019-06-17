@@ -42,7 +42,7 @@ const routes = [
               },
               login: {max: 14, character:true, name:"login"},
               password: {min: 6, name:"password"},
-              email: {required: true, name:"email"},
+              email: {required: true, confirm: true, name:"email"},
               phone: {required: false, name:"phone"}
           }
       }

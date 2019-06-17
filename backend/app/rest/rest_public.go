@@ -75,26 +75,27 @@ func (s *Rest) newUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	objectId, err := service.InsertUser(login, password, email, phone, s.mongo)
-	if err != nil {
-		SendErrorJSON(w, r, 200, "не удалось зарегистрировать пользователя", err)
-		return
-	}
-	id, err := service.GetIdString(objectId)
-	if err != nil {
-		SendErrorJSON(w, r, 500, "не удалось зарегистрировать пользователя", err)
-		return
-	}
-	urlConfirm, err := getUrlConfirmEmail(id)
-	if err != nil {
-		SendErrorJSON(w, r, 200, "не удалось зарегистрировать пользователя", err)
-		return
-	}
+	//objectId, err := service.InsertUser(login, password, email, phone, s.mongo)
+	//if err != nil {
+	//	SendErrorJSON(w, r, 200, "не удалось зарегистрировать пользователя", err)
+	//	return
+	//}
+	//id, err := service.GetIdString(objectId)
+	//if err != nil {
+	//	SendErrorJSON(w, r, 500, "не удалось зарегистрировать пользователя", err)
+	//	return
+	//}
 
-	if err := service.SendEmail(urlConfirm, email); err != nil {
-		SendErrorJSON(w, r, 500, "не удалось отправить ссылку подтвержения на электронный адрес", err)
-		return
-	}
+	//urlConfirm, err := getUrlConfirmEmail(id)
+	//if err != nil {
+	//	SendErrorJSON(w, r, 200, "не удалось зарегистрировать пользователя", err)
+	//	return
+	//}
+
+	//if err := service.SendEmail(urlConfirm, email); err != nil {
+	//	SendErrorJSON(w, r, 500, "не удалось отправить ссылку подтвержения на электронный адрес", err)
+	//	return
+	//}
 	urlEmail := getUrlUserEmail(email)
 	SendJSON(w, r, 200, map[string]interface{}{"result": true, "url": urlEmail})
 }

@@ -71,7 +71,6 @@ func (s *Rest) groupRouteApiV1(groupRoute chi.Router) {
 		r.Post("/logout", s.logout)
 		r.Post("/add_user", s.newUser)
 		r.Post("/add_word", s.newWord)
-		r.Post("/confirm_email", s.confirmEmail)
 		r.Delete("/delete_word", s.deleteWord)
 		r.Put("/forget_word", s.forgetWord)
 	})

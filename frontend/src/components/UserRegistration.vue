@@ -139,12 +139,17 @@
                       return
                   }
                   this.snackbar.show = false
-                  this.confirmEmail.showText = true
-                  if (res && res.data && res.data.url) {
-                      this.confirmEmail.showBtn = true
-                      this.confirmEmail.url = res.data.url
-                      console.log("url:", this.confirmEmail.url)
+                  if (this.registration.email && this.registration.email.confirm) {
+                      this.confirmEmail.showText = true
+                      if (res && res.data && res.data.url) {
+                          this.confirmEmail.showBtn = true
+                          this.confirmEmail.url = res.data.url
+                          console.log("url:", this.confirmEmail.url)
+                      }
+                      return
                   }
+                  this.onClosed()
+
               } catch (e) {
                   this.showSnackBar(`не удалось сохранить пользователя. Ошибка: ${e}`)
               }
