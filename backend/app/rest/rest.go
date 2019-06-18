@@ -65,11 +65,13 @@ func (s *Rest) routes() chi.Router {
 func (s *Rest) groupRouteApiV1(groupRoute chi.Router) {
 	groupRoute.Group(func(r chi.Router) {
 		r.Get("/activate", s.activate)
+		r.Get("/confirm_new_password", s.confimNewPassword)
 		r.Get("/run", s.run)
 		r.Post("/auth", s.autharization)
 		r.Post("/login", s.login)
 		r.Post("/logout", s.logout)
 		r.Post("/add_user", s.newUser)
+		r.Post("/recovery_password", s.recoveryPassword)
 		r.Post("/add_word", s.newWord)
 		r.Delete("/delete_word", s.deleteWord)
 		r.Put("/forget_word", s.forgetWord)

@@ -33,7 +33,8 @@ const routes = [
               port: 27333,
               url: "api/v1/login"
           },
-          showPassword: true,
+          showPassword: false,
+          passwordRecovery: "http://192.168.0.83:27333/api/v1/recovery_password",
           registration: {
               controler :{
                   ip: window.location.hostname,

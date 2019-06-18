@@ -144,7 +144,6 @@
                       if (res && res.data && res.data.url) {
                           this.confirmEmail.showBtn = true
                           this.confirmEmail.url = res.data.url
-                          console.log("url:", this.confirmEmail.url)
                       }
                       return
                   }

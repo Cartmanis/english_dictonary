@@ -11,6 +11,13 @@ import (
 	"time"
 )
 
+type TypeMail byte
+
+const (
+	Activate         TypeMail = 0
+	ReceveryPassword          = 1
+)
+
 type word struct {
 	En            string
 	Ru            string
@@ -36,7 +43,7 @@ func GetIdString(id interface{}) (string, error) {
 	}
 }
 
-func SendEmail(message, email string) error {
+func SendEmail(typeMail TypeMail, message, subject, email string) error {
 	conn, err := grpc.Dial("127.0.0.1:27111", grpc.WithInsecure())
 	if err != nil {
 		return err
@@ -46,11 +53,18 @@ func SendEmail(message, email string) error {
 	c := pb.NewMailerClient(conn)
 	ctx, cancel := context.WithTimeout(context.Background(), time.Minute)
 	defer cancel()
-	result, err := c.SendMail(ctx, &pb.MsgRequest{To: email, Msg: message, Subject: "активация приложения english_dictonary"})
-	if err != nil {
-		return err
+	switch typeMail {
+	case Activate:
+		_, err = c.SendMail(ctx, &pb.MsgRequest{To: email, Msg: message, Subject: subject})
+		if err != nil {
+			return err
+		}
+	case ReceveryPassword:
+		_, err := c.RetrievePass(ctx, &pb.MsgRequest{To: email, Msg: message, Subject: subject})
+		if err != nil {
+			return err
+		}
 	}
-	fmt.Println(result)
 	return nil
 }
 
@@ -61,28 +75,6 @@ func checkService(s *Service) error {
 	if s.mongo == nil {
 		return fmt.Errorf("не установлено подключение к базе данных")
 	}
-	return nil
-}
-
-func ActivateUser(userId string, m *provider_db.MongoClient) error {
-	if m == nil {
-		return fmt.Errorf("не установлено подключение к базе данных")
-	}
-
-	objectId, err := provider_db.GetObjectId(userId)
-	if err != nil {
-		return err
-	}
-	filter := map[string]interface{}{"_id": objectId}
-	update := map[string]bool{"activate": true}
-	result, err := m.UpdateOne(filter, update, "$set", users)
-	if err != nil {
-		return err
-	}
-	//if result.ModifiedCount == 0 {
-	//	return fmt.Errorf("не найдено пользователя, который может пройти активацию")
-	//}
-	fmt.Println(result)
 	return nil
 }
 

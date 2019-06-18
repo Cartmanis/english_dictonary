@@ -11,7 +11,7 @@ import (
 
 const (
 	tplActivate = "activate.msg"
-	retrievetpl = "retrieve.msg"
+	tplRetrieve = "recovery.msg"
 )
 
 type config struct {
@@ -29,6 +29,15 @@ type Message struct {
 	Subject string
 	Body    string
 	tplName string
+}
+
+type RecoveryPassword struct {
+	From     string
+	To       string
+	Subject  string
+	UserName string
+	Password string
+	tplName  string
 }
 
 var cnf config

@@ -19,23 +19,6 @@ func NewGrpcServer(port int) *server {
 	return &server{port: port}
 }
 
-/*
-
-Методы структуры SendMail и RetrievePass принимают контекст и входящее сообщение,
-формат которого мы описали в proto-файле вот так:
-
-message MsgRequest {
-    string to = 1;
-    string code = 2;
-}
-
-Формат ответного сообщения в прото-файле был такой:
-
-message MsgReply {
-    bool sent = 1;
-}
-
-*/
 func (s *server) SendMail(ctx context.Context, input *pb.MsgRequest) (*pb.Result, error) {
 	//В переменную m считываем MsgRequest(смотрим в mail.proto, чтобы вспомнить, что это).
 	m := Message{fmt.Sprintf("%v", cnf.from),
@@ -49,11 +32,16 @@ func (s *server) SendMail(ctx context.Context, input *pb.MsgRequest) (*pb.Result
 	return &pb.Result{Sent: true}, nil
 }
 
-func (s *server) RetrievePass(ctx context.Context, in *pb.MsgRequest) (*pb.Result, error) {
+func (s *server) RetrievePass(ctx context.Context, input *pb.MsgRequest) (*pb.Result, error) {
+	m := Message{fmt.Sprintf("%v", cnf.from),
+		input.To, input.Subject, input.Msg, tplRetrieve}
 
-	//А здесь ответим false
+	if err := messageLoop(m); err != nil {
+		return &pb.Result{Sent: true}, err
+	}
 
-	return &pb.Result{Sent: false}, nil
+	//Ну, а если все хорошо,  отвечаем клиенту true
+	return &pb.Result{Sent: true}, nil
 }
 
 func (s *server) StartGrpcSever() {

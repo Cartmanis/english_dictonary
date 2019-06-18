@@ -69,7 +69,7 @@ func getUrlUserEmail(email string) string {
 	return mapEmails[arr[1]]
 }
 
-func getUrlConfirmEmail(userId string) (string, error) {
+func getUrlConfirm(userId, url string) (string, error) {
 	ifaces, err := net.Interfaces()
 	if err != nil {
 		return "", err
@@ -90,7 +90,7 @@ func getUrlConfirmEmail(userId string) (string, error) {
 			}
 
 			if len(ip.To4()) == 4 {
-				return fmt.Sprintf("http://%v:27333/api/v1/activate?id=%v", ip.String(), userId), nil
+				return fmt.Sprintf("http://%v:27333/%v?id=%v", ip.String(), url, userId), nil
 			}
 		}
 
