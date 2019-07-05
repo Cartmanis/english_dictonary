@@ -30,33 +30,29 @@
                                                   :rules="[rules.requiredPassword, rules.passwordValid, rules.minPassword]">
                                     </v-text-field>
                                 </v-flex>
-                                <v-flex xs12>
+                                <v-flex xs12 v-show="registration && registration.email">
                                     <v-text-field prepend-icon="account_circle"
-                                                  v-show="registration && registration.email"
                                                   :label="checker.email.required ? 'Фамилия*' : 'Фамилия'"
                                                   v-model="email"
                                                   :rules="[rules.requiredEmail, rules.email]">
                                     </v-text-field>
                                 </v-flex>
-                                <v-flex xs12>
+                                <v-flex xs12 v-show="registration && registration.email">
                                     <v-text-field prepend-icon="account_circle"
-                                                  v-show="registration && registration.email"
                                                   :label="checker.email.required ? 'Имя*' : 'Имя'"
                                                   v-model="email"
                                                   :rules="[rules.requiredEmail, rules.email]">
                                     </v-text-field>
                                 </v-flex>
-                                <v-flex xs12>
+                                <v-flex xs12 v-show="registration && registration.email">
                                     <v-text-field prepend-icon="date_range"
-                                                  v-show="registration && registration.email"
                                                   :label="checker.email.required ? 'Дата рождения*' : 'Дата рождения'"
                                                   v-model="email"
                                                   :rules="[rules.requiredEmail, rules.email]">
                                     </v-text-field>
                                 </v-flex>
-                                <v-flex xs12>
+                                <v-flex xs12 v-show="registration && registration.email">
                                     <v-text-field prepend-icon="email"
-                                                  v-show="registration && registration.email"
                                                   :label="checker.email.required ? 'Электронная почта*' : 'Электронная почта'"
                                                   v-model="email"
                                                   :rules="[rules.requiredEmail, rules.email]">
