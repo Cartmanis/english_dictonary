@@ -111,7 +111,7 @@ func FindUserByEmail(email string, m *provider_db.MongoClient) (*User, error) {
 	return user, nil
 }
 
-func NewPassword(id interface{}, newPassword string, m *provider_db.MongoClient) error {
+func  NewPassword(id interface{}, newPassword string, m *provider_db.MongoClient) error {
 	if m == nil {
 		return fmt.Errorf("не иницилизированная база данных mongoDb")
 	}

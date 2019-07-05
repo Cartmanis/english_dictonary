@@ -36,15 +36,16 @@ const routes = [
           showPassword: false,
           passwordRecovery: "http://192.168.0.83:27333/api/v1/recovery_password",
           registration: {
+              nameForm: "Регистрация пользователя",
               controler :{
                   ip: window.location.hostname,
                   port: 27333,
                   url: "api/v1/add_user"
               },
-              login: {max: 14, character:true, name:"login"},
-              password: {min: 6, name:"password"},
-              email: {required: true, confirm: true, name:"email"},
-              phone: {required: false, name:"phone"}
+              login: {name:"login", label:"Имя пользователя", max: 14, character:true},
+              password: {name:"password", label:"Password",  min: 6},
+              email: {name:"email", confirm: true, required: true},
+              phone: {name:"phone"}
           }
       }
     },
