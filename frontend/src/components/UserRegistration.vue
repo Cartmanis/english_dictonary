@@ -30,18 +30,18 @@
                                                   :rules="[rules.requiredPassword, rules.passwordValid, rules.minPassword]">
                                     </v-text-field>
                                 </v-flex>
-                                <v-flex xs12 v-show="registration && registration.email">
-                                    <v-text-field prepend-icon="account_circle"
-                                                  :label="checker.email.required ? 'Фамилия*' : 'Фамилия'"
-                                                  v-model="email"
-                                                  :rules="[rules.requiredEmail, rules.email]">
+                                <v-flex xs12 v-show="registration && registration.surname">
+                                    <v-text-field :label="labelSurname" prepend-icon="account_circle"
+                                                  v-model="surname"
+                                                  :rules="[rules.requiredSurname, rules.LetterValid,
+                                                  rules.minSurname, rules.maxSurname]">
                                     </v-text-field>
                                 </v-flex>
-                                <v-flex xs12 v-show="registration && registration.email">
-                                    <v-text-field prepend-icon="account_circle"
-                                                  :label="checker.email.required ? 'Имя*' : 'Имя'"
-                                                  v-model="email"
-                                                  :rules="[rules.requiredEmail, rules.email]">
+                                <v-flex xs12 v-show="registration && registration.name">
+                                    <v-text-field :label="labelName" prepend-icon="account_circle"
+                                                  v-model="name"
+                                                  :rules="[rules.requiredName, rules.LetterValid,
+                                                  rules.minName, rules.maxName]">
                                     </v-text-field>
                                 </v-flex>
                                 <v-flex xs12 v-show="registration && registration.email">
@@ -123,7 +123,7 @@
                    required = ""
                }
                if (this.registration && this.registration.login && this.registration.login.label) {
-                   return this.registration.login.label + required
+                   return  this.registration.login.label + required
                }
                return "User name" + required
            },
@@ -137,6 +137,29 @@
                 }
                 return "Password" + required
             },
+            labelSurname() {
+              let required = ""
+                if (this.registration && this.registration.surname && this.registration.surname.required) {
+                    required = "*"
+                }
+                if (this.registration && this.registration.surname && this.registration.surname.label) {
+                    return this.registration.surname.label + required
+                }
+                return "Surname" + required
+
+            },
+            labelName() {
+                let required = ""
+                if (this.registration && this.registration.name && this.registration.name.required) {
+                    required = "*"
+                }
+                if (this.registration && this.registration.name && this.registration.name.label) {
+                    return this.registration.name.label + required
+                }
+                return "Name" + required
+
+            },
+
           getParams () {
               let params = new Map();
 
@@ -223,6 +246,8 @@
                     text:"",
                     show: false
                 },
+                surname:"",
+                name:"",
                 email:"",
                 phone:"",
                 checker : {
@@ -238,6 +263,16 @@
                             this.registration.password.required !== false) || this.registration.password.required,
                         min: (this.registration && this.registration.password && this.registration.password.min)  || 8
                     },
+                    surname: {
+                        required: this.registration && this.registration.surname && this.registration.surname.required,
+                        min: (this.registration && this.registration.surname && this.registration.surname.min) || 3,
+                        max: (this.registration && this.registration.surname && this.registration.surname.max)  || 30,
+                    },
+                    name: {
+                        required: this.registration && this.registration.name && this.registration.name.required,
+                        min: (this.registration && this.registration.name && this.registration.name.min) || 3,
+                        max: (this.registration && this.registration.name && this.registration.name.max)  || 30,
+                    },
                     email: {
                         required: this.registration && this.registration.email && this.registration.email.required
                     },
@@ -251,6 +286,8 @@
                     requiredPassword: value => (!!value || !this.checker.password.required) || 'Пароль не может быть пустым',
                     requiredEmail: value => (!!value || !this.checker.email.required) || 'Email не может быть пустым',
                     requiredPhone: value => (!!value || !this.checker.phone.required) || 'Телефон не может быть пустым',
+                    requiredSurname: value => (!!value || !this.checker.surname.required) || 'Фамилия должна быть заполнена',
+                    requiredName: value => (!!value || !this.checker.name.required) || 'Имя должно быть заполнено',
                     characterLogin: value => {
                         if (this.checker.login.character&& value) {
                             const pattern = /^[a-zA-Zа-яА-Я][0-9a-zA-Zа-яА-Я]+$/
@@ -263,6 +300,21 @@
                         `максимальное количество символов: ${this.checker.login.max}`,
                     minLogin: value => !value || value.length >= this.checker.login.min ||
                         `минимальное количество символов: ${this.checker.login.min}`,
+                    LetterValid: value => {
+                        if (value) {
+                            const pattern = /^[a-zA-Zа-яА-Я]+$/
+                            return pattern.test(value) || 'в данном поле могут присутствовать только буквы'
+                        }
+                        return true
+                    },
+                    maxSurname: value => !value || value.length <= this.checker.surname.max ||
+                        `максимальное количество символов: ${this.checker.surname.max}`,
+                    minSurname: value => !value || value.length >= this.checker.surname.min ||
+                        `минимальное количество символов: ${this.checker.surname.min}`,
+                    maxName: value => !value || value.length <= this.checker.name.max ||
+                        `максимальное количество символов: ${this.checker.name.max}`,
+                    minName: value => !value || value.length >= this.checker.name.min ||
+                        `минимальное количество символов: ${this.checker.name.min}`,
                     passwordValid: value => {
                         if (value) {
                             const pattern = /(?=.*[0-9])(?=.*[a-zA-Zа-яА-Я])/
