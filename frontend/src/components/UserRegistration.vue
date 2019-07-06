@@ -44,12 +44,8 @@
                                                   rules.minName, rules.maxName]">
                                     </v-text-field>
                                 </v-flex>
-                                <v-flex xs12 v-show="registration && registration.email">
-                                    <v-text-field prepend-icon="date_range"
-                                                  :label="checker.email.required ? 'Дата рождения*' : 'Дата рождения'"
-                                                  v-model="email"
-                                                  :rules="[rules.requiredEmail, rules.email]">
-                                    </v-text-field>
+                                <v-flex xs12 v-show="registration && registration.birthDay">
+                                    <date-hidden :label="labelBirthDay" :required="checker.birthDay.required" @change-date="birthDay=$event"></date-hidden>
                                 </v-flex>
                                 <v-flex xs12 v-show="registration && registration.email">
                                     <v-text-field prepend-icon="email"
@@ -94,8 +90,12 @@
 
 <script>
     const axios = require('axios').default
+    import dateHidden from './DateHidden'
     export default {
         name: "UserRegistration",
+        components: {
+            'date-hidden': dateHidden,
+        },
         props: {
             show: {
               type: Boolean
@@ -159,7 +159,12 @@
                 return "Name" + required
 
             },
-
+            labelBirthDay() {
+              if (this.registration && this.registration.birthDay && this.registration.birthDay.label) {
+                  return this.registration.birthDay.label
+              }
+              return ''
+            },
           getParams () {
               let params = new Map();
 
@@ -249,6 +254,7 @@
                 surname:"",
                 name:"",
                 email:"",
+                birthDay:"",
                 phone:"",
                 checker : {
                     login: {
@@ -272,6 +278,9 @@
                         required: this.registration && this.registration.name && this.registration.name.required,
                         min: (this.registration && this.registration.name && this.registration.name.min) || 3,
                         max: (this.registration && this.registration.name && this.registration.name.max)  || 30,
+                    },
+                    birthDay: {
+                        required: this.registration && this.registration.birthDay && this.registration.birthDay.required
                     },
                     email: {
                         required: this.registration && this.registration.email && this.registration.email.required
