@@ -211,7 +211,6 @@
               if (!this.registration || !this.registration.controler) {
                   return
               }
-              const url = `http://${this.registration.controler.ip}:${this.registration.controler.port}/${this.registration.controler.url}`
               if (!this.validate) {
                   this.showSnackBar("Сохранение не выполнено. Заполните корректно все поля формы", "warning")
                   return
@@ -224,7 +223,7 @@
                   data.append(key, value)
               });
               try {
-                  const res = await axios.post(`${url}`, data)
+                  const res = await axios.post(`${this.registration.controler}`, data)
                   if (res && res.data && res.data.error) {
                       this.showSnackBar(res.data.error, "warning")
                       return

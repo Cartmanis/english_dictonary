@@ -37,17 +37,13 @@ const routes = [
           passwordRecovery: "http://192.168.0.83:27333/api/v1/recovery_password",
           registration: {
               nameForm: "Регистрация пользователя",
-              controler :{
-                  ip: window.location.hostname,
-                  port: 27333,
-                  url: "api/v1/add_user"
-              },
+              controler : "http://192.168.0.83:27333/api/v1/add_user",
               login: {name:"login", label:"Имя пользователя", max: 14, character:true},
               password: {name:"password", label:"Password",  min: 6},
               surname: {name:"fam", label:"Фамилия", required: true, min:2, max:15},
               name: {name:"fam", label:"Имя", min:2, max:10},
               birthDay: {name:"birth_day", label:"Дата рождения"},
-              email: {name:"email", label: "Электронная почта", confirm: true, required: true},
+              email: {name:"email", label: "Электронная почта", required: true},
               phone: {name:"phone", label:"Мобильный телефон"}
           }
       }
