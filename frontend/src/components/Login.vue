@@ -73,7 +73,7 @@
         </v-card>
       </v-flex>
     </v-layout>
-    <user-registration width="700px" :registration="registration"
+    <user-registration max-width="700px" :registration="registration"
                        :show=userRegistration  @closed="userRegistration=$event"></user-registration>
   </v-container>
 </template>

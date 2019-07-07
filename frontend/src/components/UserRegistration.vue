@@ -4,9 +4,9 @@
           v-model="snackbar.show"
           :color="snackbar.color"
           :multi-line=true
-          :timeout="10000"
+          :timeout="7000"
         >{{snackbar.text}}</v-snackbar>
-        <v-dialog v-model="show" persistent :max-width="width">
+        <v-dialog v-model="show" persistent :max-width="maxWidth" height="50px">
             <v-card>
                 <v-card-title>
                     <span class="headline">{{nameForm}}</span>
@@ -48,16 +48,13 @@
                                     <date-hidden :label="labelBirthDay" :required="checker.birthDay.required" @change-date="birthDay=$event"></date-hidden>
                                 </v-flex>
                                 <v-flex xs12 v-show="registration && registration.email">
-                                    <v-text-field prepend-icon="email"
-                                                  :label="checker.email.required ? 'Электронная почта*' : 'Электронная почта'"
+                                    <v-text-field :label="labelEmail" prepend-icon="email"
                                                   v-model="email"
                                                   :rules="[rules.requiredEmail, rules.email]">
                                     </v-text-field>
                                 </v-flex>
-                                <v-flex xs12>
-                                    <v-text-field prepend-icon="phone"
-                                                  v-show="registration && registration.phone"
-                                                  :label="checker.phone.required ? 'Телефон*' : 'Телефон'"
+                                <v-flex xs12 v-show="registration && registration.phone">
+                                    <v-text-field :label="labelPhone" prepend-icon="phone"
                                                   v-model="phone"
                                                   :rules="[rules.requiredPhone, rules.phone]">
 
@@ -90,7 +87,7 @@
 
 <script>
     const axios = require('axios').default
-    import dateHidden from './DateHidden'
+    import dateHidden from 'date-hidden'
     export default {
         name: "UserRegistration",
         components: {
@@ -103,7 +100,7 @@
             registration: {
                 type: Object
             },
-            width: {
+            maxWidth: {
                 type: String
             },
             controler: {
@@ -164,6 +161,26 @@
                   return this.registration.birthDay.label
               }
               return ''
+            },
+            labelEmail () {
+                let required = ""
+                if (this.registration && this.registration.email && this.registration.email.required) {
+                    required = "*"
+                }
+                if (this.registration && this.registration.email && this.registration.email.label) {
+                    return this.registration.email.label + required
+                }
+                return "Email" + required
+            },
+            labelPhone () {
+                let required = ""
+                if (this.registration && this.registration.phone && this.registration.phone.required) {
+                    required = "*"
+                }
+                if (this.registration && this.registration.phone && this.registration.phone.label) {
+                    return this.registration.phone.label + required
+                }
+                return "Phone" + required
             },
           getParams () {
               let params = new Map();

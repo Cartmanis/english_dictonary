@@ -46,9 +46,9 @@ const routes = [
               password: {name:"password", label:"Password",  min: 6},
               surname: {name:"fam", label:"Фамилия", required: true, min:2, max:15},
               name: {name:"fam", label:"Имя", min:2, max:10},
-              birthDay: {name:"birth_day", label:"Дата рожд."},
-              email: {name:"email", confirm: true, required: true},
-              phone: {name:"phone"}
+              birthDay: {name:"birth_day", label:"Дата рождения"},
+              email: {name:"email", label: "Электронная почта", confirm: true, required: true},
+              phone: {name:"phone", label:"Мобильный телефон"}
           }
       }
     },
