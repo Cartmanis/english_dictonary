@@ -37,7 +37,7 @@ func (s *Rest) activate(w http.ResponseWriter, r *http.Request) {
 		HttpOnly: true,  //Куки HTTPonly не доступны из JavaScript через свойства Document.cookie API, что помогает избежать межсайтового скриптинга (XSS)
 	}
 	http.SetCookie(w, c)
-	http.Redirect(w, r, "http://192.168.0.83:8080", 303)
+	http.Redirect(w, r, "http://192.168.0.84:8080", 303)
 }
 
 func (s *Rest) newUser(w http.ResponseWriter, r *http.Request) {
@@ -79,7 +79,7 @@ func (s *Rest) newUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	urlEmail := getUrlUserEmail(email)
-	SendJSON(w, r, 200, map[string]interface{}{"result": true, "url": urlEmail})
+	SendJSON(w, r, 200, map[string]interface{}{"result": true, "url_email": urlEmail})
 }
 
 func (s *Rest) confimNewPassword(w http.ResponseWriter, r *http.Request) {
@@ -106,7 +106,7 @@ func (s *Rest) confimNewPassword(w http.ResponseWriter, r *http.Request) {
 		HttpOnly: true,  //Куки HTTPonly не доступны из JavaScript через свойства Document.cookie API, что помогает избежать межсайтового скриптинга (XSS)
 	}
 	http.SetCookie(w, c)
-	http.Redirect(w, r, "http://192.168.0.83:8080", 303)
+	http.Redirect(w, r, "http://192.168.0.84:8080", 303)
 
 }
 
@@ -151,7 +151,7 @@ func (s *Rest) recoveryPassword(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	urlEmail := getUrlUserEmail(email)
-	SendJSON(w, r, 200, map[string]interface{}{"result": true, "url": urlEmail})
+	SendJSON(w, r, 200, map[string]interface{}{"result": true, "url_email": urlEmail})
 
 }
 

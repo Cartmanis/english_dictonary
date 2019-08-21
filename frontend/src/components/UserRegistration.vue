@@ -1,88 +1,99 @@
 <template>
-    <v-form ref="form">
-        <v-snackbar
-          v-model="snackbar.show"
-          :color="snackbar.color"
-          :multi-line=true
-          :timeout="7000"
-        >{{snackbar.text}}</v-snackbar>
-        <v-dialog v-model="show" persistent :max-width="maxWidth" height="50px">
-            <v-card>
-                <v-card-title>
-                    <span class="headline">{{nameForm}}</span>
-                </v-card-title>
-                <v-card-text>
-                    <v-container grid-list-md>
-                        <form>
-                            <v-layout wrap>
-                                <v-flex xs12>
-                                    <v-text-field :label="labelLogin" prepend-icon="person"
-                                                  v-model="login"
-                                                  :rules="[rules.requiredLogin, rules.maxLogin, rules.minLogin, rules.characterLogin]"
-                                    ></v-text-field>
-                                </v-flex>
-                                <v-flex xs12>
-                                    <v-text-field :label="labelPassword"  prepend-icon="lock"
-                                                  :type = "password.show ? 'text' : 'password'"
-                                                  v-model="password.text"
-                                                  :append-icon="password.show ? 'visibility' : 'visibility_off'"
-                                                  @click:append="password.show=!password.show"
-                                                  :rules="[rules.requiredPassword, rules.passwordValid, rules.minPassword]">
-                                    </v-text-field>
-                                </v-flex>
-                                <v-flex xs12 v-show="registration && registration.surname">
-                                    <v-text-field :label="labelSurname" prepend-icon="account_circle"
-                                                  v-model="surname"
-                                                  :rules="[rules.requiredSurname, rules.LetterValid,
+  <v-form ref="form">
+    <v-snackbar
+        v-model="snackbar.show"
+        :color="snackbar.color"
+        :multi-line=true
+        :timeout="7000"
+    >{{snackbar.text}}</v-snackbar>
+    <v-dialog v-model="show" persistent :max-width="maxWidth" height="50px">
+      <v-card>
+        <v-card-title>
+          <span class="headline">{{nameForm}}</span>
+        </v-card-title>
+        <v-card-text>
+          <v-container grid-list-md>
+            <form>
+              <v-layout wrap>
+                <v-flex xs12>
+                  <v-text-field :label="labelLogin" prepend-icon="person"
+                                v-model="login"
+                                :rules="[rules.requiredLogin, rules.maxLogin, rules.minLogin, rules.characterLogin]"
+                  ></v-text-field>
+                </v-flex>
+                <v-flex xs12>
+                  <v-text-field :label="labelPassword"  prepend-icon="lock"
+                                :type = "password.show ? 'text' : 'password'"
+                                v-model="password.text"
+                                :append-icon="password.show ? 'visibility' : 'visibility_off'"
+                                @click:append="password.show=!password.show"
+                                :rules="[rules.requiredPassword, rules.passwordValid, rules.minPassword]">
+                  </v-text-field>
+                </v-flex>
+                <v-flex xs12 v-show="options && options.surname">
+                  <v-text-field :label="labelSurname" prepend-icon="account_circle"
+                                v-model="surname"
+                                :rules="[rules.requiredSurname, rules.LetterValid,
                                                   rules.minSurname, rules.maxSurname]">
-                                    </v-text-field>
-                                </v-flex>
-                                <v-flex xs12 v-show="registration && registration.name">
-                                    <v-text-field :label="labelName" prepend-icon="account_circle"
-                                                  v-model="name"
-                                                  :rules="[rules.requiredName, rules.LetterValid,
+                  </v-text-field>
+                </v-flex>
+                <v-flex xs12 v-show="options && options.name">
+                  <v-text-field :label="labelName" prepend-icon="account_circle"
+                                v-model="name"
+                                :rules="[rules.requiredName, rules.LetterValid,
                                                   rules.minName, rules.maxName]">
-                                    </v-text-field>
-                                </v-flex>
-                                <v-flex xs12 v-show="registration && registration.birthDay">
-                                    <date-hidden :label="labelBirthDay" :required="checker.birthDay.required" @change-date="birthDay=$event"></date-hidden>
-                                </v-flex>
-                                <v-flex xs12 v-show="registration && registration.email">
-                                    <v-text-field :label="labelEmail" prepend-icon="email"
-                                                  v-model="email"
-                                                  :rules="[rules.requiredEmail, rules.email]">
-                                    </v-text-field>
-                                </v-flex>
-                                <v-flex xs12 v-show="registration && registration.phone">
-                                    <v-text-field :label="labelPhone" prepend-icon="phone"
-                                                  v-model="phone"
-                                                  :rules="[rules.requiredPhone, rules.phone]">
+                  </v-text-field>
+                </v-flex>
+                <v-flex xs12 v-show="options && options.birthDay">
+                  <date-hidden :label="labelBirthDay" :required="checker.birthDay.required" @change-date="birthDay=$event"></date-hidden>
+                </v-flex>
+                <v-flex xs12 v-show="options && options.email">
+                  <v-text-field :label="labelEmail" prepend-icon="email"
+                                v-model="email"
+                                :rules="[rules.requiredEmail, rules.email]">
+                  </v-text-field>
+                </v-flex>
+                <v-flex xs12 v-show="options && options.phone">
+                  <v-text-field :label="labelPhone" prepend-icon="phone"
+                                v-model="phone"
+                                :rules="[rules.requiredPhone, rules.phone]">
 
-                                    </v-text-field>
-                                </v-flex>
-                                <template>
-                                    <v-flex xs12 v-show = "confirmEmail.showText">
-                                        <v-label text-color ="success">На ваш электронный адрес отправлено письмо со ссылкой на подтверждение регистрации. Перейдите в почту для завершения регистрации.</v-label>
-                                    </v-flex>
-                                    <v-flex xs12 v-show="confirmEmail.showBtn" >
-                                        <a target="_blank" :href="confirmEmail.url">
-                                            <v-btn @click="onClosed"  color="primary">Перейти в почту</v-btn>
-                                        </a>
-                                    </v-flex>
-                                </template>
-                            </v-layout>
-                        </form>
-                    </v-container>
-                    <small>*поля обязательные для заполнения</small>
-                </v-card-text>
-                <v-card-actions>
-                    <v-spacer></v-spacer>
-                    <v-btn color="primary" flat @click="onClosed">Закрыть</v-btn>
-                    <v-btn color="primary" flat @click="onRegistration">Сохранить</v-btn>
-                </v-card-actions>
-            </v-card>
-        </v-dialog>
-    </v-form>
+                  </v-text-field>
+                </v-flex>
+                <template>
+                  <v-flex xs12 v-show = "confirmEmail.showText">
+                    <v-label text-color ="success">На ваш электронный адрес отправлено письмо со ссылкой на подтверждение регистрации. Перейдите в почту для завершения регистрации.</v-label>
+                  </v-flex>
+                  <v-flex xs12 v-show="confirmEmail.showBtn" >
+                    <a target="_blank" :href="confirmEmail.url">
+                      <v-btn @click="onClosed"  color="primary">Перейти в почту</v-btn>
+                    </a>
+                  </v-flex>
+                </template>
+                <template v-show = "confirmPhone.url">
+                <v-flex xs12 >
+                  <v-label text-color ="success">На ваш телефон выслано sms c кодом подтверждения</v-label>
+                </v-flex>
+                <v-flex xs12>
+                  <v-text-field label = 'Код подтверждения'></v-text-field>
+                </v-flex>
+                <v-flex xs12>
+                    <v-btn @click="onClosed"  color="primary">Подтвердить</v-btn>
+                </v-flex>
+                </template>
+              </v-layout>
+            </form>
+          </v-container>
+          <small>*поля обязательные для заполнения</small>
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="primary" flat @click="onClosed">Закрыть</v-btn>
+          <v-btn color="primary" flat @click="onSave">Сохранить</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+  </v-form>
 </template>
 
 <script>
@@ -95,160 +106,165 @@
         },
         props: {
             show: {
-              type: Boolean
+                type: Boolean
             },
-            registration: {
+            options: {
                 type: Object
             },
             maxWidth: {
                 type: String
             },
-            controler: {
-                type: Object
+            url: {
+                type: String
             }
         },
         computed: {
-          nameForm() {
-            if (this.registration && this.registration.nameForm) {
-                return this.registration.nameForm
-            }
-            return "User Registration"
-          },
-           labelLogin() {
-               let required = "*"
-               if (this.registration && this.registration.login && this.registration.login.required === false) {
-                   required = ""
-               }
-               if (this.registration && this.registration.login && this.registration.login.label) {
-                   return  this.registration.login.label + required
-               }
-               return "User name" + required
-           },
-            labelPassword() {
+            nameForm() {
+                if (this.options && this.options.nameForm) {
+                    return this.options.nameForm
+                }
+                return "User Registration"
+            },
+            labelLogin() {
                 let required = "*"
-                if (this.registration && this.registration.password && this.registration.password.required === false) {
+                if (this.options && this.options.login && this.options.login.required === false) {
                     required = ""
                 }
-                if (this.registration && this.registration.password && this.registration.password.label) {
-                    return this.registration.password.label + required
+                if (this.options && this.options.login && this.options.login.label) {
+                    return  this.options.login.label + required
+                }
+                return "User name" + required
+            },
+            labelPassword() {
+                let required = "*"
+                if (this.options && this.options.password && this.options.password.required === false) {
+                    required = ""
+                }
+                if (this.options && this.options.password && this.options.password.label) {
+                    return this.options.password.label + required
                 }
                 return "Password" + required
             },
             labelSurname() {
-              let required = ""
-                if (this.registration && this.registration.surname && this.registration.surname.required) {
+                let required = ""
+                if (this.options && this.options.surname && this.options.surname.required) {
                     required = "*"
                 }
-                if (this.registration && this.registration.surname && this.registration.surname.label) {
-                    return this.registration.surname.label + required
+                if (this.options && this.options.surname && this.options.surname.label) {
+                    return this.options.surname.label + required
                 }
                 return "Surname" + required
 
             },
             labelName() {
                 let required = ""
-                if (this.registration && this.registration.name && this.registration.name.required) {
+                if (this.options && this.options.name && this.options.name.required) {
                     required = "*"
                 }
-                if (this.registration && this.registration.name && this.registration.name.label) {
-                    return this.registration.name.label + required
+                if (this.options && this.options.name && this.options.name.label) {
+                    return this.options.name.label + required
                 }
                 return "Name" + required
 
             },
             labelBirthDay() {
-              if (this.registration && this.registration.birthDay && this.registration.birthDay.label) {
-                  return this.registration.birthDay.label
-              }
-              return ''
+                if (this.options && this.options.birthDay && this.options.birthDay.label) {
+                    return this.options.birthDay.label
+                }
+                return ''
             },
             labelEmail () {
                 let required = ""
-                if (this.registration && this.registration.email && this.registration.email.required) {
+                if (this.options && this.options.email && this.options.email.required) {
                     required = "*"
                 }
-                if (this.registration && this.registration.email && this.registration.email.label) {
-                    return this.registration.email.label + required
+                if (this.options && this.options.email && this.options.email.label) {
+                    return this.options.email.label + required
                 }
                 return "Email" + required
             },
             labelPhone () {
                 let required = ""
-                if (this.registration && this.registration.phone && this.registration.phone.required) {
+                if (this.options && this.options.phone && this.options.phone.required) {
                     required = "*"
                 }
-                if (this.registration && this.registration.phone && this.registration.phone.label) {
-                    return this.registration.phone.label + required
+                if (this.options && this.options.phone && this.options.phone.label) {
+                    return this.options.phone.label + required
                 }
                 return "Phone" + required
             },
-          getParams () {
-              let params = new Map();
+            getParams () {
+                let params = new Map();
 
-              if (this.registration && this.registration.login && this.registration.login.name) {
-                  params.set(this.registration.login.name, this.login)
-              }
-              if (this.registration && this.registration.password && this.registration.password.name) {
-                  params.set(this.registration.password.name, this.password.text)
-              }
-              if (this.registration && this.registration.email && this.registration.email.name) {
-                  params.set(this.registration.email.name, this.email)
-              }
-              if (this.registration && this.registration.phone && this.registration.phone.name) {
-                  params.set(this.registration.phone.name, this.phone)
-              }
-              return params
-          },
-           validate () {
-              return this.$refs.form.validate()
-           }
+                if (this.options && this.options.login && this.options.login.name) {
+                    params.set(this.options.login.name, this.login)
+                }
+                if (this.options && this.options.password && this.options.password.name) {
+                    params.set(this.options.password.name, this.password.text)
+                }
+                if (this.options && this.options.email && this.options.email.name) {
+                    params.set(this.options.email.name, this.email)
+                }
+                if (this.options && this.options.phone && this.options.phone.name) {
+                    params.set(this.options.phone.name, this.phone)
+                }
+                return params
+            },
+            validate () {
+                return this.$refs.form.validate()
+            }
         },
         methods: {
-          onClosed() {
-              this.$emit('closed', false)
-          },
-          async onRegistration() {
-              if (!this.registration || !this.registration.controler) {
-                  return
-              }
-              if (!this.validate) {
-                  this.showSnackBar("Сохранение не выполнено. Заполните корректно все поля формы", "warning")
-                  return
-              }
-              const data = new FormData()
-              this.getParams.forEach( (value, key) => {
-                  if (value === "") {
-                      return
-                  }
-                  data.append(key, value)
-              });
-              try {
-                  const res = await axios.post(`${this.registration.controler}`, data)
-                  if (res && res.data && res.data.error) {
-                      this.showSnackBar(res.data.error, "warning")
-                      return
-                  }
-                  this.snackbar.show = false
-                  if (this.registration.email && this.registration.email.confirm) {
-                      this.confirmEmail.showText = true
-                      if (res && res.data && res.data.url) {
-                          this.confirmEmail.showBtn = true
-                          this.confirmEmail.url = res.data.url
-                      }
-                      return
-                  }
-                  this.onClosed()
+            onClosed() {
+                this.$emit('closed', false)
+            },
+            async onSave() {
+                if (!this.options || !this.options.url) {
+                    return
+                }
+                if (!this.validate) {
+                    this.showSnackBar("Сохранение не выполнено. Заполните корректно все поля формы", "warning")
+                    return
+                }
+                const data = new FormData()
+                this.getParams.forEach( (value, key) => {
+                    if (value === "") {
+                        return
+                    }
+                    data.append(key, value)
+                });
 
-              } catch (e) {
-                  this.showSnackBar(`не удалось сохранить пользователя. Ошибка: ${e}`)
-              }
+                try {
+                    const res = await axios.post(`${this.options.url}`, data)
+                    if (res && res.data && res.data.error) {
+                        this.showSnackBar(res.data.error, "warning")
+                        return
+                    }
+                    console.log('data:', res.data)
+                    this.snackbar.show = false
+                    if (this.options.email && this.options.email.confirm) {
+                        this.confirmEmail.showText = true
+                        if (res && res.data && res.data.url_email) {
+                            this.confirmEmail.showBtn = true
+                            this.confirmEmail.url = res.data.url_email //urlEmail ...Подумать
+                        }
+                        return
+                    }
+                    if (this.options.phone && this.options.phone.confirmUrl) {
+                        this.confirmPhone = this.options.phone.confirmUrl //urlPhone
+                    }
+                    this.onClosed()
 
-          },
-          showSnackBar(text, color) {
-              this.snackbar.show = true
-              this.snackbar.text = text
-              this.snackbar.color = color || "error"
-          }
+                } catch (e) {
+                    this.showSnackBar(`не удалось сохранить пользователя. Ошибка: ${e}`)
+                }
+
+            },
+            showSnackBar(text, color) {
+                this.snackbar.show = true
+                this.snackbar.text = text
+                this.snackbar.color = color || "error"
+            }
         },
         data () {
             return {
@@ -262,6 +278,10 @@
                     showBtn: false,
                     url: "",
                 },
+                confirmPhone: {
+                    url: "",
+                    code:""
+                },
                 login:"",
                 password: {
                     text:"",
@@ -274,35 +294,35 @@
                 phone:"",
                 checker : {
                     login: {
-                        required : (this.registration && this.registration.login &&
-                            this.registration.login.required !== false) || this.registration.login.required,
-                        min: (this.registration && this.registration.login && this.registration.login.min) || 3,
-                        max: (this.registration && this.registration.login && this.registration.login.max)  || 20,
-                        character: this.registration && this.registration.login && this.registration.login.character
+                        required : (this.options && this.options.login &&
+                            this.options.login.required !== false) || this.options.login.required,
+                        min: (this.options && this.options.login && this.options.login.min) || 3,
+                        max: (this.options && this.options.login && this.options.login.max)  || 20,
+                        character: this.options && this.options.login && this.options.login.character
                     },
                     password: {
-                        required : (this.registration && this.registration.password &&
-                            this.registration.password.required !== false) || this.registration.password.required,
-                        min: (this.registration && this.registration.password && this.registration.password.min)  || 8
+                        required : (this.options && this.options.password &&
+                            this.options.password.required !== false) || this.options.password.required,
+                        min: (this.options && this.options.password && this.options.password.min)  || 8
                     },
                     surname: {
-                        required: this.registration && this.registration.surname && this.registration.surname.required,
-                        min: (this.registration && this.registration.surname && this.registration.surname.min) || 3,
-                        max: (this.registration && this.registration.surname && this.registration.surname.max)  || 30,
+                        required: this.options && this.options.surname && this.options.surname.required,
+                        min: (this.options && this.options.surname && this.options.surname.min) || 3,
+                        max: (this.options && this.options.surname && this.options.surname.max)  || 30,
                     },
                     name: {
-                        required: this.registration && this.registration.name && this.registration.name.required,
-                        min: (this.registration && this.registration.name && this.registration.name.min) || 3,
-                        max: (this.registration && this.registration.name && this.registration.name.max)  || 30,
+                        required: this.options && this.options.name && this.options.name.required,
+                        min: (this.options && this.options.name && this.options.name.min) || 3,
+                        max: (this.options && this.options.name && this.options.name.max)  || 30,
                     },
                     birthDay: {
-                        required: this.registration && this.registration.birthDay && this.registration.birthDay.required
+                        required: this.options && this.options.birthDay && this.options.birthDay.required
                     },
                     email: {
-                        required: this.registration && this.registration.email && this.registration.email.required
+                        required: this.options && this.options.email && this.options.email.required
                     },
                     phone: {
-                        required: this.registration && this.registration.phone && this.registration.phone.required
+                        required: this.options && this.options.phone && this.options.phone.required
                     }
                 },
                 rules: {

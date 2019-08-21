@@ -40,7 +40,7 @@ func InsertUser(login, pass, email, phone string, m *provider_db.MongoClient) (i
 		return nil, err
 	}
 	if countLogin >= 1 {
-		return nil, fmt.Errorf("Пользователь с именем %v уже существует. Используйте другое имя для регистрации.", login)
+		return nil, fmt.Errorf("пользователь с именем %v уже существует. Используйте другое имя для регистрации.", login)
 	}
 	if email != "" {
 		countEmail, err := m.Count(map[string]string{"email": email}, users)
@@ -48,7 +48,7 @@ func InsertUser(login, pass, email, phone string, m *provider_db.MongoClient) (i
 			return nil, err
 		}
 		if countEmail >= 1 {
-			return nil, fmt.Errorf("Пользователь с email %v уже зарегистрирован в системе.", email)
+			return nil, fmt.Errorf("пользователь с email %v уже зарегистрирован в системе.", email)
 		}
 	}
 

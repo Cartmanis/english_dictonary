@@ -8,7 +8,7 @@ Vue.use(VueRouter)
 const axios = require('axios').default
 
 const isAuth = async (to, from, next) => {
-    const url = "http://192.168.0.83:27333/api/v1/auth"
+    const url = "http://192.168.0.84:27333/api/v1/auth"
     try {
         const res = await axios.post(url, {}, {withCredentials:true})
         if (res && res.data && res.data.result) {
@@ -34,17 +34,17 @@ const routes = [
               url: "api/v1/login"
           },
           showPassword: false,
-          passwordRecovery: "http://192.168.0.83:27333/api/v1/recovery_password",
+          passwordRecovery: "http://192.168.0.84:27333/api/v1/recovery_password",
           registration: {
               nameForm: "Регистрация пользователя",
-              controler : "http://192.168.0.83:27333/api/v1/add_user",
-              login: {name:"login", label:"Имя пользователя", max: 14, character:true},
-              password: {name:"password", label:"Password",  min: 6},
-              surname: {name:"fam", label:"Фамилия", required: true, min:2, max:15},
-              name: {name:"fam", label:"Имя", min:2, max:10},
-              birthDay: {name:"birth_day", label:"Дата рождения"},
-              email: {name:"email", label: "Электронная почта", required: true},
-              phone: {name:"phone", label:"Мобильный телефон"}
+              url : "http://192.168.0.84:27333/api/v1/add_user",
+               login: {name:"login", label:"Имя пользователя", max: 14, character:true},
+               password: {name:"password", label:"Password",  min: 6},
+              // surname: {name:"fam", label:"Фамилия", required: true, min:2, max:15},
+              // name: {name:"fam", label:"Имя", min:2, max:10},
+              // birthDay: {name:"birth_day", label:"Дата рождения"},
+              email: {name:"email", label: "Электронная почта", confirm: true, required: true},
+              phone: {name:"phone", label:"Мобильный телефон", confirmUrl :""}
           }
       }
     },

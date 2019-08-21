@@ -48,6 +48,7 @@ func (s *Rest) isAuthSession(w http.ResponseWriter, r *http.Request) (bool, int,
 	return true, 200, id, user.Login
 }
 
+
 func (s *Rest) login(w http.ResponseWriter, r *http.Request) {
 	login, password, _ := r.BasicAuth()
 	auth, status, userId, err := service.AuthUser(login, password, s.mongo)

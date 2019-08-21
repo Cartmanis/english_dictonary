@@ -73,13 +73,13 @@
         </v-card>
       </v-flex>
     </v-layout>
-    <user-registration max-width="700px" :registration="registration"
+    <user-registration max-width="700px" :options="registration"
                        :show=userRegistration  @closed="userRegistration=$event"></user-registration>
   </v-container>
 </template>
 <script>
   const axios = require('axios').default
-  import UserRegistration from './UserRegistration'
+  import UserRegistration from 'vuetify-user-registration'
     export default {
         name: "Login",
         components: {
