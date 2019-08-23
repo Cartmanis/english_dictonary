@@ -79,7 +79,8 @@
 </template>
 <script>
   const axios = require('axios').default
-  import UserRegistration from 'vuetify-user-registration'
+  // import UserRegistration from 'vuetify-user-registration'
+  import UserRegistration from './UserRegistration'
     export default {
         name: "Login",
         components: {

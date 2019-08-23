@@ -70,8 +70,8 @@
                     </a>
                   </v-flex>
                 </template>
-                <template v-show = "confirmPhone.url">
-                <v-flex xs12 >
+                <template v-if = "confirmPhone.url">>
+                <v-flex xs12>
                   <v-label text-color ="success">На ваш телефон выслано sms c кодом подтверждения</v-label>
                 </v-flex>
                 <v-flex xs12>
@@ -240,13 +240,12 @@
                         this.showSnackBar(res.data.error, "warning")
                         return
                     }
-                    console.log('data:', res.data)
                     this.snackbar.show = false
                     if (this.options.email && this.options.email.confirm) {
                         this.confirmEmail.showText = true
                         if (res && res.data && res.data.url_email) {
                             this.confirmEmail.showBtn = true
-                            this.confirmEmail.url = res.data.url_email //urlEmail ...Подумать
+                            this.confirmEmail.url = res.data.url_email
                         }
                         return
                     }
