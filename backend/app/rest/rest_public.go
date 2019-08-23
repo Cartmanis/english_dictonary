@@ -73,13 +73,13 @@ func (s *Rest) newUser(w http.ResponseWriter, r *http.Request) {
 		SendErrorJSON(w, r, 200, "не удалось зарегистрировать пользователя", err)
 		return
 	}
-
-	if err := service.SendEmail(service.Activate, urlConfirm, "активация приложения english_dictonary", email); err != nil {
-		SendErrorJSON(w, r, 500, "не удалось отправить ссылку подтвержения на электронный адрес", err)
-		return
-	}
+	fmt.Println(urlConfirm)
+	//if err := service.SendEmail(service.Activate, urlConfirm, "активация приложения english_dictonary", email); err != nil {
+	//	SendErrorJSON(w, r, 500, "не удалось отправить ссылку подтвержения на электронный адрес", err)
+	//	return
+	//}
 	urlEmail := getUrlUserEmail(email)
-	SendJSON(w, r, 200, map[string]interface{}{"result": true, "url_email": urlEmail})
+	SendJSON(w, r, 200, map[string]interface{}{"result": true, "url_phone": urlEmail})
 }
 
 func (s *Rest) confimNewPassword(w http.ResponseWriter, r *http.Request) {

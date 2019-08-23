@@ -43,8 +43,8 @@ const routes = [
               // surname: {name:"fam", label:"Фамилия", required: true, min:2, max:15},
               // name: {name:"fam", label:"Имя", min:2, max:10},
               // birthDay: {name:"birth_day", label:"Дата рождения"},
-              email: {name:"email", label: "Электронная почта", confirm: true, required: true},
-              phone: {name:"phone", label:"Мобильный телефон", confirmUrl :""}
+              email: {name:"email", label: "Электронная почта", confirm: false, required: true},
+              phone: {name:"phone", label:"Мобильный телефон", confirm: true}
           }
       }
     },

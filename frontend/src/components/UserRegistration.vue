@@ -70,16 +70,17 @@
                     </a>
                   </v-flex>
                 </template>
-                <template v-if = "confirmPhone.url">>
+                <template v-if = "confirmPhone.url">
                 <v-flex xs12>
                   <v-label text-color ="success">На ваш телефон выслано sms c кодом подтверждения</v-label>
                 </v-flex>
                 <v-flex xs12>
-                  <v-text-field label = 'Код подтверждения'></v-text-field>
+                  <v-text-field v-model = "confirmPhone.code" label = 'Код подтверждения'></v-text-field>
                 </v-flex>
                 <v-flex xs12>
-                    <v-btn @click="onClosed"  color="primary">Подтвердить</v-btn>
+                    <v-btn @click="onConfirmPhone" color="primary">Подтвердить</v-btn>
                 </v-flex>
+                  <v-label v-show = "confirmPhone.text">{{confirmPhone.text}}</v-label>
                 </template>
               </v-layout>
             </form>
@@ -218,6 +219,33 @@
             onClosed() {
                 this.$emit('closed', false)
             },
+            async onConfirmPhone() {
+                if (!this.confirmPhone.code) {
+                    this.showSnackBar("Код подтверждения не отправлен. Заполните поле Код подтверждения", "warning")
+                    return
+                }
+                try {
+                    console.log(this.confirmPhone.code)
+                    const data = new FormData()
+                    data.append("code_phone", this.confirmPhone.code )
+                    const res = await axios.post(`${this.confirmPhone.url}`, data)
+                    if (res && res.data && res.data.error) {
+                        this.showSnackBar(res.data.error, "warning")
+                        return
+                    }
+                    this.confirmPhone.text = `Телефон успешно подтвержден`
+                    return
+                } catch (e) {
+                    if (e && e.response && e.response.data && e.response.status) {
+                        if (e.response.status === 401 || e.response.status === 403) {
+                            this.confirmPhone.text = `Не удалось подтвердить телефон: неверный код подтверждения`
+                        }
+                        return
+                    }
+                    this.showSnackBar(`не удалось подтвердить телефон. Ошибка: ${e}`)
+                }
+              this.onClosed()
+            },
             async onSave() {
                 if (!this.options || !this.options.url) {
                     return
@@ -241,18 +269,21 @@
                         return
                     }
                     this.snackbar.show = false
+
                     if (this.options.email && this.options.email.confirm) {
                         this.confirmEmail.showText = true
                         if (res && res.data && res.data.url_email) {
                             this.confirmEmail.showBtn = true
                             this.confirmEmail.url = res.data.url_email
                         }
-                        return
                     }
-                    if (this.options.phone && this.options.phone.confirmUrl) {
-                        this.confirmPhone = this.options.phone.confirmUrl //urlPhone
+                    if (this.options.phone && this.options.phone.confirm &&
+                        res && res.data && res.data.url_phone) {
+                          this.confirmPhone.url = res.data.url_phone
                     }
-                    this.onClosed()
+                    if (!this.confirmEmail.showText && !this.confirmPhone.url) {
+                        this.onClosed()
+                    }
 
                 } catch (e) {
                     this.showSnackBar(`не удалось сохранить пользователя. Ошибка: ${e}`)
@@ -278,8 +309,9 @@
                     url: "",
                 },
                 confirmPhone: {
-                    url: "",
-                    code:""
+                    url:"",
+                    code: "",
+                    text: ""
                 },
                 login:"",
                 password: {
