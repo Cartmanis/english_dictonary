@@ -70,6 +70,7 @@ func (s *Rest) groupRouteApiV1(groupRoute chi.Router) {
 		r.Post("/auth", s.autharization)
 		r.Post("/login", s.login)
 		r.Post("/logout", s.logout)
+		r.Post("/confirm_phone", s.confirmPhone)
 		r.Post("/add_user", s.newUser)
 		r.Post("/recovery_password", s.recoveryPassword)
 		r.Post("/add_word", s.newWord)

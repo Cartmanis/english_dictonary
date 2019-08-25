@@ -74,12 +74,21 @@ func (s *Rest) newUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	fmt.Println(urlConfirm)
-	//if err := service.SendEmail(service.Activate, urlConfirm, "активация приложения english_dictonary", email); err != nil {
-	//	SendErrorJSON(w, r, 500, "не удалось отправить ссылку подтвержения на электронный адрес", err)
-	//	return
-	//}
+	if err := service.SendEmail(service.Activate, urlConfirm, "активация приложения english_dictonary", email); err != nil {
+		SendErrorJSON(w, r, 500, "не удалось отправить ссылку подтвержения на электронный адрес", err)
+		return
+	}
 	urlEmail := getUrlUserEmail(email)
-	SendJSON(w, r, 200, map[string]interface{}{"result": true, "url_phone": urlEmail})
+	// urlPhone := "http://192.168.0.84:27333/api/v1/confirm_phone"
+	SendJSON(w, r, 200, map[string]interface{}{"result": true, "url_email": urlEmail})
+}
+
+func (s *Rest) confirmPhone(w http.ResponseWriter, r *http.Request) {
+	code := r.PostFormValue("code_phone")
+	if code == "" {
+		SendErrorJSON(w, r, 400, "", fmt.Errorf("пустой код подтверждения телефона"))
+		return
+	}
 }
 
 func (s *Rest) confimNewPassword(w http.ResponseWriter, r *http.Request) {

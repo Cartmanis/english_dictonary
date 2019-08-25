@@ -74,10 +74,10 @@
                 <v-flex xs12>
                   <v-label text-color ="success">На ваш телефон выслано sms c кодом подтверждения</v-label>
                 </v-flex>
-                <v-flex xs12>
+                <v-flex xs6>
                   <v-text-field v-model = "confirmPhone.code" label = 'Код подтверждения'></v-text-field>
                 </v-flex>
-                <v-flex xs12>
+                <v-flex xs6>
                     <v-btn @click="onConfirmPhone" color="primary">Подтвердить</v-btn>
                 </v-flex>
                   <v-label v-show = "confirmPhone.text">{{confirmPhone.text}}</v-label>
@@ -220,14 +220,17 @@
                 this.$emit('closed', false)
             },
             async onConfirmPhone() {
+                if (!this.confirmPhone.url) {
+                    this.showSnackBar("Сбой при отправке кода подтверждения. url для server пустой")
+                    return
+                }
                 if (!this.confirmPhone.code) {
                     this.showSnackBar("Код подтверждения не отправлен. Заполните поле Код подтверждения", "warning")
                     return
                 }
                 try {
-                    console.log(this.confirmPhone.code)
                     const data = new FormData()
-                    data.append("code_phone", this.confirmPhone.code )
+                    data.append("code_phone", this.confirmPhone.code)
                     const res = await axios.post(`${this.confirmPhone.url}`, data)
                     if (res && res.data && res.data.error) {
                         this.showSnackBar(res.data.error, "warning")
