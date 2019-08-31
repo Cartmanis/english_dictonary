@@ -274,43 +274,39 @@
                     }
                     data.append(key, value)
                 });
-                  let urlEmail = this.getEmail
-                  if (this.options.email && this.options.email.confirm) {
-                    this.confirmEmail.showText = true
-                    if (urlEmail) {
-                      this.confirmEmail.showBtn = true
-                      this.confirmEmail.url = urlEmail
-                    } else {
-                      this.confirmEmail.showBtn = false
-                      this.confirmEmail.url = ""
+                try {
+                    const res = await axios.post(`${this.options.url}`, data)
+                    if (res && res.data && res.data.error) {
+                        this.showSnackBar(res.data.error, "warning")
+                        return
                     }
+                    this.snackbar.show = false
+
+                    //Для электронной почты
+                    let urlEmail = this.getEmail
+                    if (this.options.email && this.options.email.confirm) {
+                      this.confirmEmail.showText = true
+                      if (urlEmail) {
+                        this.confirmEmail.showBtn = true
+                        this.confirmEmail.url = urlEmail
+                      } else {
+                        this.confirmEmail.showBtn = false
+                        this.confirmEmail.url = ""
+                      }
+                    }
+                    // Для телефона
+                  if (this.options.phone && this.options.phone.confirmUrl) {
+                    this.confirmPhone.url = this.options.phone.confirmUrl
                   }
-                // try {
-                //     const res = await axios.post(`${this.options.url}`, data)
-                //     if (res && res.data && res.data.error) {
-                //         this.showSnackBar(res.data.error, "warning")
-                //         return
-                //     }
-                //     this.snackbar.show = false
-                //
-                //     if (this.options.email && this.options.email.confirm) {
-                //         this.confirmEmail.showText = true
-                //         if (res && res.data && res.data.url_email) {
-                //             this.confirmEmail.showBtn = true
-                //             this.confirmEmail.url = res.data.url_email
-                //         }
-                //     }
-                //     if (this.options.phone && this.options.phone.confirm &&
-                //         res && res.data && res.data.url_phone) {
-                //           this.confirmPhone.url = res.data.url_phone
-                //     }
-                //     if (!this.confirmEmail.showText && !this.confirmPhone.url) {
-                //         this.onClosed()
-                //     }
-                //
-                // } catch (e) {
-                //     this.showSnackBar(`не удалось сохранить пользователя. Ошибка: ${e}`)
-                // }
+
+                     // Проверка на автоматическое закрытие формы
+                    if (!this.confirmEmail.showText && !this.confirmPhone.url) {
+                        this.onClosed()
+                    }
+
+                } catch (e) {
+                    this.showSnackBar(`не удалось сохранить пользователя. Ошибка: ${e}`)
+                }
 
             },
             showSnackBar(text, color) {
@@ -360,7 +356,7 @@
                     url: "",
                 },
                 confirmPhone: {
-                    url:"",
+                    url: "",
                     code: "",
                     text: ""
                 },

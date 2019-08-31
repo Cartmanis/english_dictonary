@@ -46,7 +46,7 @@ const routes = [
               // name: {name:"fam", label:"Имя", min:2, max:10},
               // birthDay: {name:"birth_day", label:"Дата рождения"},
               email: {name:"email", label: "Электронная почта", confirm: false, required: true},
-              phone: {name:"phone", label:"Мобильный телефон", confirm: true}
+              phone: {name:"phone", label:"Мобильный телефон", confirmUrl: "http://192.168.3.101:27333/api/v1/confirm_phone"}
           }
       }
     },
