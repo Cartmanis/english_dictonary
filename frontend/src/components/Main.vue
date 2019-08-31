@@ -28,6 +28,7 @@
 
 <script>
   const axios = require('axios').default
+  const baseUrl = "http://192.168.3.101"
   import Words from './Words'
   export default {
     components: {
@@ -53,7 +54,7 @@
     methods: {
       async getUserName() {
         try {
-          const url = "http://192.168.0.84:27333/api/v1/auth"
+          const url = `${baseUrl}:27333/api/v1/auth`
           const res = await axios.post(url, {}, {withCredentials:true})
           if (res && res.data && res.data.user) {
             this.userName = res.data.user
@@ -63,7 +64,7 @@
         }
       },
       async onLogOut() {
-        const url = "http://192.168.0.84:27333/api/v1/logout"
+        const url = `${baseUrl}:27333/api/v1/logout`
         try {
           const res = await  axios.post(url, {}, {withCredentials:true})
           if (res && res.data && res.data.result) {

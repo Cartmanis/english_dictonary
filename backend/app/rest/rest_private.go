@@ -70,30 +70,24 @@ func getUrlUserEmail(email string) string {
 }
 
 func getUrlConfirm(userId, url string) (string, error) {
-	ifaces, err := net.Interfaces()
+	ip, err := getNetworkIpAddress()
 	if err != nil {
 		return "", err
 	}
-	for _, i := range ifaces {
-		if i.Name != "enp3s0" {
-			continue
-		}
-		listAddr, err := i.Addrs()
-		if err != nil {
-			return "", err
-		}
-		for _, addr := range listAddr {
-			var ip net.IP
-			switch v := addr.(type) {
-			case *net.IPNet:
-				ip = v.IP
-			}
+	return fmt.Sprintf("http://%s:27333/%s?id=%s", ip, url, userId), nil
+}
 
-			if len(ip.To4()) == 4 {
-				return fmt.Sprintf("http://%v:27333/%v?id=%v", ip.String(), url, userId), nil
-			}
+func getNetworkIpAddress() (string, error) {
+	addrList, err := net.InterfaceAddrs()
+	if err != nil {
+		return "", err
+	}
+	for _, addr := range addrList {
+		networkIp, ok := addr.(*net.IPNet)
+		//если соответсвует типу net.IPNet и не является петлей и является IPv4
+		if ok && !networkIp.IP.IsLoopback() && networkIp.IP.To4() != nil {
+			return networkIp.IP.String(), nil
 		}
-
 	}
 	return "", fmt.Errorf("не возможно определить ipV4 адрес у сервера")
 }

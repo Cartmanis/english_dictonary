@@ -60,7 +60,7 @@ func (s *Rest) newUser(w http.ResponseWriter, r *http.Request) {
 
 	objectId, err := service.InsertUser(login, password, email, phone, s.mongo)
 	if err != nil {
-		SendErrorJSON(w, r, 200, "не удалось зарегистрировать пользователя", err)
+		SendErrorJSON(w, r, 400, "не удалось зарегистрировать пользователя", err)
 		return
 	}
 	id, err := service.GetIdString(objectId)
@@ -71,17 +71,15 @@ func (s *Rest) newUser(w http.ResponseWriter, r *http.Request) {
 
 	urlConfirm, err := getUrlConfirm(id, "api/v1/activate")
 	if err != nil {
-		SendErrorJSON(w, r, 200, "не удалось зарегистрировать пользователя", err)
+		SendErrorJSON(w, r, 500, "не удалось зарегистрировать пользователя", err)
 		return
 	}
-	fmt.Println(urlConfirm)
 	if err := service.SendEmail(service.Activate, urlConfirm, "активация приложения english_dictonary", email); err != nil {
 		SendErrorJSON(w, r, 500, "не удалось отправить ссылку подтвержения на электронный адрес", err)
 		return
 	}
-	urlEmail := getUrlUserEmail(email)
 	//urlPhone := fmt.Sprintf("%s::27333/api/v1/confirm_phone", baseUrl)
-	SendJSON(w, r, 200, map[string]interface{}{"result": true, "url_email": urlEmail})
+	SendJSON(w, r, 200, map[string]interface{}{"result": true})
 }
 
 func (s *Rest) confirmPhone(w http.ResponseWriter, r *http.Request) {
@@ -160,8 +158,8 @@ func (s *Rest) recoveryPassword(w http.ResponseWriter, r *http.Request) {
 		SendErrorJSON(w, r, 500, "не удалось отправить почту с новым паролем", err)
 		return
 	}
-	urlEmail := getUrlUserEmail(email)
-	SendJSON(w, r, 200, map[string]interface{}{"result": true, "url_email": urlEmail})
+	//urlEmail := getUrlUserEmail(email)
+	SendJSON(w, r, 200, map[string]interface{}{"result": true})
 
 }
 
