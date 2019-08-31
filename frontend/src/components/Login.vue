@@ -10,7 +10,7 @@
     <v-dialog v-model="showDialog" persistent max-width="700">
       <v-card>
         <v-card-title>
-          <span class="headline">Отправить пароль</span>
+          <span class="headline">Восстановление пароля</span>
         </v-card-title>
         <v-card-text>
           <v-form ref="form">
@@ -104,12 +104,50 @@
         }
       },
       computed: {
+          getEmail() {
+              if (!this.email) {
+                  return ""
+              }
+              const arr = this.email.split('@')
+              if (!arr || arr.length < 2) {
+                  return ""
+              }
+              return this.mapEmail.get(arr[1])
+          },
           validate () {
             return this.$refs.form.validate()
           }
       },
       data () {
         return {
+            mapEmail : new Map([
+                ["mail.ru",        "https://e.mail.ru/"],
+                ["bk.ru",         "https://e.mail.ru/"],
+                ["list.ru",        "https://e.mail.ru/"],
+                ["inbox.ru",       "https://e.mail.ru/"],
+                ["yandex.ru",      "https://mail.yandex.ru/"],
+                ["ya.ru",          "https://mail.yandex.ru/"],
+                ["yandex.ua",      "https://mail.yandex.ua/"],
+                ["yandex.by",      "https://mail.yandex.by/"],
+                ["yandex.kz",      "https://mail.yandex.kz/"],
+                ["yandex.com",     "https://mail.yandex.com/"],
+                ["gmail.com",      "https://mail.google.com/"],
+                ["googlemail.com", "https://mail.google.com/"],
+                ["outlook.com",    "https://mail.live.com/"],
+                ["hotmail.com",    "https://mail.live.com/"],
+                ["live.ru",        "https://mail.live.com/"],
+                ["live.com",       "https://mail.live.com/"],
+                ["me.com",         "https://www.icloud.com/"],
+                ["icloud.com",     "https://www.icloud.com/"],
+                ["rambler.ru",     "https://mail.rambler.ru/"],
+                ["yahoo.com",      "https://mail.yahoo.com/"],
+                ["ukr.net",        "https://mail.ukr.net/"],
+                ["i.ua",           "http://mail.i.ua/"],
+                ["bigmir.net",     "http://mail.bigmir.net/"],
+                ["tut.by",         "https://mail.tut.by/"],
+                ["inbox.lv",       "https://www.inbox.lv/"],
+                ["mail.kz",        "http://mail.kz/"]
+            ]),
             snackbar: {
                 show: false,
                 text: "",
@@ -165,13 +203,14 @@
             }
             this.snackbar.show = false
             this.recoveryPassword.showText = true
-            if (res && res.data && res.data.url) {
-              this.recoveryPassword.showBtn = true
-              this.recoveryPassword.url = res.data.url
+            let urlEmail = this.getEmail
+            if (urlEmail) {
+                this.recoveryPassword.showBtn = true
+                this.recoveryPassword.url = urlEmail
             }
           } catch (e) {
-            if (e.response && e.response.data && e.response.data.details) {
-              this.showSnackBar(e.response.data.details, "warning")
+            if (e.response && e.response.data && e.response.data.error) {
+              this.showSnackBar(e.response.data.error, "warning")
               return
             }
             this.showSnackBar(`не удалось восстановить пароль. Ошибка: ${e}`)

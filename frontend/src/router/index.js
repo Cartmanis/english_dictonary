@@ -32,7 +32,7 @@ const routes = [
       props: {
           url : `${baseUrl}:27333/api/v1/login`,
           showPassword: false,
-          //passwordRecovery: `${baseUrl}:27333/api/v1/recovery_password`,
+          passwordRecovery: `${baseUrl}:27333/api/v1/recovery_password`,
           registration: {
               nameForm: "Регистрация пользователя",
               url : `${baseUrl}:27333/api/v1/add_user`,
