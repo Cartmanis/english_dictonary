@@ -20,6 +20,7 @@ func NewGrpcServer(port int) *server {
 }
 
 func (s *server) SendMail(ctx context.Context, input *pb.MsgRequest) (*pb.Result, error) {
+
 	//В переменную m считываем MsgRequest(смотрим в mail.proto, чтобы вспомнить, что это).
 	m := Message{fmt.Sprintf("%v", cnf.from),
 		input.To, input.Subject, input.Msg, tplActivate}

@@ -120,6 +120,16 @@
             }
         },
         computed: {
+            getEmail() {
+              if (!this.email) {
+                return ""
+              }
+              const arr = this.email.split('@')
+              if (!arr || arr.length < 2) {
+                return ""
+              }
+              return this.mapEmail.get(arr[1])
+            },
             nameForm() {
                 if (this.options && this.options.nameForm) {
                     return this.options.nameForm
@@ -264,33 +274,43 @@
                     }
                     data.append(key, value)
                 });
-
-                try {
-                    const res = await axios.post(`${this.options.url}`, data)
-                    if (res && res.data && res.data.error) {
-                        this.showSnackBar(res.data.error, "warning")
-                        return
+                  let urlEmail = this.getEmail
+                  if (this.options.email && this.options.email.confirm) {
+                    this.confirmEmail.showText = true
+                    if (urlEmail) {
+                      this.confirmEmail.showBtn = true
+                      this.confirmEmail.url = urlEmail
+                    } else {
+                      this.confirmEmail.showBtn = false
+                      this.confirmEmail.url = ""
                     }
-                    this.snackbar.show = false
-
-                    if (this.options.email && this.options.email.confirm) {
-                        this.confirmEmail.showText = true
-                        if (res && res.data && res.data.url_email) {
-                            this.confirmEmail.showBtn = true
-                            this.confirmEmail.url = res.data.url_email
-                        }
-                    }
-                    if (this.options.phone && this.options.phone.confirm &&
-                        res && res.data && res.data.url_phone) {
-                          this.confirmPhone.url = res.data.url_phone
-                    }
-                    if (!this.confirmEmail.showText && !this.confirmPhone.url) {
-                        this.onClosed()
-                    }
-
-                } catch (e) {
-                    this.showSnackBar(`не удалось сохранить пользователя. Ошибка: ${e}`)
-                }
+                  }
+                // try {
+                //     const res = await axios.post(`${this.options.url}`, data)
+                //     if (res && res.data && res.data.error) {
+                //         this.showSnackBar(res.data.error, "warning")
+                //         return
+                //     }
+                //     this.snackbar.show = false
+                //
+                //     if (this.options.email && this.options.email.confirm) {
+                //         this.confirmEmail.showText = true
+                //         if (res && res.data && res.data.url_email) {
+                //             this.confirmEmail.showBtn = true
+                //             this.confirmEmail.url = res.data.url_email
+                //         }
+                //     }
+                //     if (this.options.phone && this.options.phone.confirm &&
+                //         res && res.data && res.data.url_phone) {
+                //           this.confirmPhone.url = res.data.url_phone
+                //     }
+                //     if (!this.confirmEmail.showText && !this.confirmPhone.url) {
+                //         this.onClosed()
+                //     }
+                //
+                // } catch (e) {
+                //     this.showSnackBar(`не удалось сохранить пользователя. Ошибка: ${e}`)
+                // }
 
             },
             showSnackBar(text, color) {
@@ -306,6 +326,34 @@
                     text: "",
                     color: ""
                 },
+                mapEmail : new Map([
+                  ["mail.ru",        "https://e.mail.ru/"],
+                  ["bk.ru",         "https://e.mail.ru/"],
+                  ["list.ru",        "https://e.mail.ru/"],
+                  ["inbox.ru",       "https://e.mail.ru/"],
+                  ["yandex.ru",      "https://mail.yandex.ru/"],
+                  ["ya.ru",          "https://mail.yandex.ru/"],
+                  ["yandex.ua",      "https://mail.yandex.ua/"],
+                  ["yandex.by",      "https://mail.yandex.by/"],
+                  ["yandex.kz",      "https://mail.yandex.kz/"],
+                  ["yandex.com",     "https://mail.yandex.com/"],
+                  ["gmail.com",      "https://mail.google.com/"],
+                  ["googlemail.com", "https://mail.google.com/"],
+                  ["outlook.com",    "https://mail.live.com/"],
+                  ["hotmail.com",    "https://mail.live.com/"],
+                  ["live.ru",        "https://mail.live.com/"],
+                  ["live.com",       "https://mail.live.com/"],
+                  ["me.com",         "https://www.icloud.com/"],
+                  ["icloud.com",     "https://www.icloud.com/"],
+                  ["rambler.ru",     "https://mail.rambler.ru/"],
+                  ["yahoo.com",      "https://mail.yahoo.com/"],
+                  ["ukr.net",        "https://mail.ukr.net/"],
+                  ["i.ua",           "http://mail.i.ua/"],
+                  ["bigmir.net",     "http://mail.bigmir.net/"],
+                  ["tut.by",         "https://mail.tut.by/"],
+                  ["inbox.lv",       "https://www.inbox.lv/"],
+                  ["mail.kz",        "http://mail.kz/"]
+                ]),
                 confirmEmail: {
                     showText: false,
                     showBtn: false,
