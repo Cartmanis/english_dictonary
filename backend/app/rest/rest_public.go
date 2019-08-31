@@ -11,6 +11,7 @@ import (
 
 const (
 	english = "english"
+	baseUrl = "http://192.168.0.84"
 )
 
 func (s *Rest) activate(w http.ResponseWriter, r *http.Request) {
@@ -37,7 +38,7 @@ func (s *Rest) activate(w http.ResponseWriter, r *http.Request) {
 		HttpOnly: true,  //Куки HTTPonly не доступны из JavaScript через свойства Document.cookie API, что помогает избежать межсайтового скриптинга (XSS)
 	}
 	http.SetCookie(w, c)
-	http.Redirect(w, r, "http://192.168.0.84:8080", 303)
+	http.Redirect(w, r, fmt.Sprintf("%s:8080", baseUrl), 303)
 }
 
 func (s *Rest) newUser(w http.ResponseWriter, r *http.Request) {
@@ -79,7 +80,7 @@ func (s *Rest) newUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	urlEmail := getUrlUserEmail(email)
-	// urlPhone := "http://192.168.0.84:27333/api/v1/confirm_phone"
+	//urlPhone := fmt.Sprintf("%s::27333/api/v1/confirm_phone", baseUrl)
 	SendJSON(w, r, 200, map[string]interface{}{"result": true, "url_email": urlEmail})
 }
 
@@ -115,7 +116,7 @@ func (s *Rest) confimNewPassword(w http.ResponseWriter, r *http.Request) {
 		HttpOnly: true,  //Куки HTTPonly не доступны из JavaScript через свойства Document.cookie API, что помогает избежать межсайтового скриптинга (XSS)
 	}
 	http.SetCookie(w, c)
-	http.Redirect(w, r, "http://192.168.0.84:8080", 303)
+	http.Redirect(w, r, fmt.Sprintf("%s:8080", baseUrl), 303)
 
 }
 
