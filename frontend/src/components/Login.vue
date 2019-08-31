@@ -73,8 +73,11 @@
         </v-card>
       </v-flex>
     </v-layout>
-    <user-registration max-width="700px" :options="registration"
-                       :show=userRegistration  @closed="userRegistration=$event"></user-registration>
+    <template v-if = "registration">
+      <user-registration max-width="700px" :options="registration" :show=userRegistration  @closed="userRegistration=$event">
+      </user-registration>
+    </template>
+
   </v-container>
 </template>
 <script>
@@ -87,16 +90,16 @@
           UserRegistration
         },
       props: {
+        url: {
+            type: String
+        },
         showPassword: {
           type: Boolean
         },
         passwordRecovery: {
-          type: String,
+          type: String
         },
         registration: {
-          type: Object
-        },
-        controler: {
           type: Object
         }
       },
@@ -177,18 +180,17 @@
         },
 
         switchLogin(typeAuth, login, password) {
-            const url = `http://${this.controler.ip}:${this.controler.port}/${this.controler.url}`
             //для того, чтобы не было исключения для кирилических символов необходимо использовать обёртку unescape(encodeURIComponent(str)
             const credentials = btoa(unescape(encodeURIComponent(`${login}:${password}`)))
 
             switch (typeAuth.toLowerCase()) {
               case 'basic':
-                return axios.post(url, {}, {
+                return axios.post(this.url, {}, {
                   headers: {'Authorization': `Basic ${credentials}`},
                   withCredentials: true
                 })
               default:
-                return axios.post(url, {}, {
+                return axios.post(this.url, {}, {
                   headers: {'Authorization': `Basic ${credentials}`},
                   withCredentials: true
                 })
@@ -202,9 +204,16 @@
           this.userRegistration = true
         },
         async onLogin () {
-          if (!this.controler) {
+          if (!this.url) {
+              this.showSnackBar("не был передан обязательный параметр url в компонент Login")
               return
           }
+          this.showSnackBar()
+          if (!this.login || !this.password || !this.password.text) {
+              this.showSnackBar("заполните имя пользователя и пароль", "warning")
+              return
+          }
+          this.snackbar.show = false
           this.error = false
           try {
               const res = await this.switchLogin('basic', this.login, this.password.text)

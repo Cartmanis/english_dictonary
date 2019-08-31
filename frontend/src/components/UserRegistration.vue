@@ -110,7 +110,8 @@
                 type: Boolean
             },
             options: {
-                type: Object
+                type: Object,
+                required: true
             },
             maxWidth: {
                 type: String
@@ -305,6 +306,10 @@
                     }
 
                 } catch (e) {
+                    if (e && e.response && e.response.data && e.response.data.error) {
+                        this.showSnackBar(`не удалось сохранить пользователя. Ошибка ${e.response.data.error}`)
+                        return
+                    }
                     this.showSnackBar(`не удалось сохранить пользователя. Ошибка: ${e}`)
                 }
 

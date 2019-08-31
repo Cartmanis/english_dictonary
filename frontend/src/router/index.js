@@ -7,7 +7,7 @@ Vue.use(VueRouter)
 
 const axios = require('axios').default
 
-const baseUrl = "http://192.168.3.101"
+const baseUrl = "http://192.168.0.84"
 
 const isAuth = async (to, from, next) => {
     const url = `${baseUrl}:27333/api/v1/auth`
@@ -30,13 +30,9 @@ const routes = [
       name: 'login',
       component: Login,
       props: {
-          controler: {
-              ip: window.location.hostname,
-              port: 27333,
-              url: "api/v1/login"
-          },
+          url : `${baseUrl}:27333/api/v1/login`,
           showPassword: false,
-          passwordRecovery: `${baseUrl}:27333/api/v1/recovery_password`,
+          //passwordRecovery: `${baseUrl}:27333/api/v1/recovery_password`,
           registration: {
               nameForm: "Регистрация пользователя",
               url : `${baseUrl}:27333/api/v1/add_user`,
@@ -46,7 +42,7 @@ const routes = [
               // name: {name:"fam", label:"Имя", min:2, max:10},
               // birthDay: {name:"birth_day", label:"Дата рождения"},
               email: {name:"email", label: "Электронная почта", confirm: true, required: true},
-              phone: {name:"phone", label:"Мобильный телефон", confirmUrl: "http://192.168.3.101:27333/api/v1/confirm_phone"}
+              phone: {name:"phone", label:"Мобильный телефон", confirmUrl: `${baseUrl}:27333/api/v1/confirm_phone`}
           }
       }
     },

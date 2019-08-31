@@ -28,7 +28,7 @@
 
 <script>
   const axios = require('axios').default
-  const baseUrl = "http://192.168.3.101"
+  const baseUrl = "http://192.168.0.84"
   import Words from './Words'
   export default {
     components: {
