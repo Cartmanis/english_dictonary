@@ -256,7 +256,7 @@
                         }
                         return
                     }
-                    this.showSnackBar(`не удалось подтвердить телефон. Ошибка: ${e}`)
+                    this.showSnackBar(`не удалось подтвердить телефон: ${e}`)
                 }
               this.onClosed()
             },
@@ -310,7 +310,7 @@
                         this.showSnackBar(`не удалось сохранить пользователя. Ошибка: ${e.response.data.error}`)
                         return
                     }
-                    this.showSnackBar(`не удалось сохранить пользователя. Ошибка: ${e}`)
+                    this.showSnackBar(`не удалось сохранить пользователя: ${e}`)
                 }
 
             },

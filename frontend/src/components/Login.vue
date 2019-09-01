@@ -7,46 +7,13 @@
       :timeout="10000"
     >{{snackbar.text}}</v-snackbar>
 
-    <v-dialog v-model="showDialog" persistent max-width="700">
-      <v-card>
-        <v-card-title>
-          <span class="headline">Восстановление пароля</span>
-        </v-card-title>
-        <v-card-text>
-          <v-form ref="form">
-            <v-label small text-color="primary">Для восстановления пароля, необходимо заполнить электронную почту,
-              которая была указана при регистрации и нажать на кнопку "Отправить пароль". На эту почту будет выслан новый пароль.</v-label>
-            <v-flex xs12>
-              <v-text-field prepend-icon="email"
-                            v-model="email"
-                            label="Электронная почта"
-                            :rules="[rules.required, rules.email]">
-              </v-text-field>
-            </v-flex>
-            <v-btn @click="onRecoveryPassword">Отправить пароль</v-btn>
-            <v-btn @click="showDialog=false;snackbar.show=false">Закрыть</v-btn>
-            <template>
-              <v-flex xs12 v-show = "recoveryPassword.showText">
-                <v-label text-color ="success">На ваш электронный адрес отправлено письмо со ссылкой на подтверждение регистрации. Перейдите в почту для завершения регистрации.</v-label>
-              </v-flex>
-              <v-flex xs12 v-show="recoveryPassword.showBtn" >
-                <a target="_blank" :href="recoveryPassword.url">
-                  <v-btn @click="showDialog=false;snackbar.show=false"  color="primary">Перейти в почту</v-btn>
-                </a>
-              </v-flex>
-            </template>
-          </v-form>
-        </v-card-text>
-      </v-card>
-    </v-dialog>
-
     <v-layout align-center justify-center>
       <v-flex xs10 sm8 md5 lg4>
         <v-card v-show="showAuth"  class="elevation-12">
           <v-toolbar>
             <v-toolbar-title>Авторизация</v-toolbar-title>
             <v-spacer></v-spacer>
-            <v-btn v-show="passwordRecovery" @click="showDialog=true" small flat color="primary">Забыли пароль?</v-btn>
+            <v-btn v-show="recoveryAccount" @click="onRecoveryAccount" small flat color="primary">Забыли пароль?</v-btn>
           </v-toolbar>
           <v-card-text>
             <v-form>
@@ -73,8 +40,9 @@
         </v-card>
       </v-flex>
     </v-layout>
+    <recovery-account :options="recoveryAccount" :show=showRecovery @closed="showRecovery=$event;showAuth=true"></recovery-account>
     <template v-if = "registration">
-      <user-registration max-width="700px" :options="registration" :show=userRegistration  @closed="userRegistration=$event">
+      <user-registration max-width="700px" :options="registration" :show=showUserRegistration  @closed="showUserRegistration=$event">
       </user-registration>
     </template>
 
@@ -84,83 +52,43 @@
   const axios = require('axios').default
   // import UserRegistration from 'vuetify-user-registration'
   import UserRegistration from './UserRegistration'
+  import RecoveryAccount from './RecoveryAcсount'
     export default {
         name: "Login",
         components: {
-          UserRegistration
+          UserRegistration,
+          RecoveryAccount
         },
       props: {
         url: {
             type: String
         },
         showPassword: {
-          type: Boolean
+            type: Boolean
         },
-        passwordRecovery: {
-          type: String
+        recoveryAccount: {
+          type: Object
         },
         registration: {
           type: Object
         }
       },
       computed: {
-          getEmail() {
-              if (!this.email) {
-                  return ""
-              }
-              const arr = this.email.split('@')
-              if (!arr || arr.length < 2) {
-                  return ""
-              }
-              return this.mapEmail.get(arr[1])
-          },
           validate () {
             return this.$refs.form.validate()
           }
       },
       data () {
         return {
-            mapEmail : new Map([
-                ["mail.ru",        "https://e.mail.ru/"],
-                ["bk.ru",         "https://e.mail.ru/"],
-                ["list.ru",        "https://e.mail.ru/"],
-                ["inbox.ru",       "https://e.mail.ru/"],
-                ["yandex.ru",      "https://mail.yandex.ru/"],
-                ["ya.ru",          "https://mail.yandex.ru/"],
-                ["yandex.ua",      "https://mail.yandex.ua/"],
-                ["yandex.by",      "https://mail.yandex.by/"],
-                ["yandex.kz",      "https://mail.yandex.kz/"],
-                ["yandex.com",     "https://mail.yandex.com/"],
-                ["gmail.com",      "https://mail.google.com/"],
-                ["googlemail.com", "https://mail.google.com/"],
-                ["outlook.com",    "https://mail.live.com/"],
-                ["hotmail.com",    "https://mail.live.com/"],
-                ["live.ru",        "https://mail.live.com/"],
-                ["live.com",       "https://mail.live.com/"],
-                ["me.com",         "https://www.icloud.com/"],
-                ["icloud.com",     "https://www.icloud.com/"],
-                ["rambler.ru",     "https://mail.rambler.ru/"],
-                ["yahoo.com",      "https://mail.yahoo.com/"],
-                ["ukr.net",        "https://mail.ukr.net/"],
-                ["i.ua",           "http://mail.i.ua/"],
-                ["bigmir.net",     "http://mail.bigmir.net/"],
-                ["tut.by",         "https://mail.tut.by/"],
-                ["inbox.lv",       "https://www.inbox.lv/"],
-                ["mail.kz",        "http://mail.kz/"]
-            ]),
             snackbar: {
                 show: false,
                 text: "",
                 color: ""
             },
-            recoveryPassword: {
-              showText: false,
-              showBtn: false,
-              url: "",
-            },
             showAuth:true,
             showDialog: false,
-            userRegistration : false,
+            showUserRegistration : false,
+            showRecovery: false,
             errorAuth: {
               show: false,
               text: "имя пользователя или пароль введены не верно"
@@ -169,113 +97,77 @@
             password: {
                 text: "",
                 show: ""
-            },
-            email: "",
-
-            rules: {
-              required: value => !!value || 'поле не должно быть пустым',
-              email: value => {
-                const pattern = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
-                return (!value || pattern.test(value))  || 'не корректный Email.'
-              }
             }
         }
       },
       methods: {
-        showSnackBar(text, color) {
-            this.snackbar.show = true
-            this.snackbar.text = text
-            this.snackbar.color = color || "error"
-        },
+          showSnackBar(text, color) {
+              this.snackbar.show = true
+              this.snackbar.text = text
+              this.snackbar.color = color || "error"
+          },
+          switchLogin(typeAuth, login, password) {
+              //для того, чтобы не было исключения для кирилических символов необходимо использовать обёртку unescape(encodeURIComponent(str)
+              const credentials = btoa(unescape(encodeURIComponent(`${login}:${password}`)))
 
-        async onRecoveryPassword() {
-          if (!this.validate) {
-            this.showSnackBar("Заполните корректно все поля формы", "warning")
-            return
-          }
-          const data = new FormData()
-          data.append("email", this.email)
-          try {
-            const res = await axios.post(this.passwordRecovery, data)
-            if (res && res.data && res.data.error) {
-              this.showSnackBar(res.data.error, "warning")
-              return
-            }
-            this.snackbar.show = false
-            this.recoveryPassword.showText = true
-            let urlEmail = this.getEmail
-            if (urlEmail) {
-                this.recoveryPassword.showBtn = true
-                this.recoveryPassword.url = urlEmail
-            }
-          } catch (e) {
-            if (e.response && e.response.data && e.response.data.error) {
-              this.showSnackBar(e.response.data.error, "warning")
-              return
-            }
-            this.showSnackBar(`не удалось восстановить пароль. Ошибка: ${e}`)
-          }
-
-        },
-
-        switchLogin(typeAuth, login, password) {
-            //для того, чтобы не было исключения для кирилических символов необходимо использовать обёртку unescape(encodeURIComponent(str)
-            const credentials = btoa(unescape(encodeURIComponent(`${login}:${password}`)))
-
-            switch (typeAuth.toLowerCase()) {
-              case 'basic':
-                return axios.post(this.url, {}, {
-                  headers: {'Authorization': `Basic ${credentials}`},
-                  withCredentials: true
-                })
-              default:
-                return axios.post(this.url, {}, {
-                  headers: {'Authorization': `Basic ${credentials}`},
-                  withCredentials: true
-                })
-            }
-
-        },
-        onClosed () {
-          this.showAuth = false
-        },
-        onRegistration () {
-          this.userRegistration = true
-        },
-        async onLogin () {
-          if (!this.url) {
-              this.showSnackBar("не был передан обязательный параметр url в компонент Login")
-              return
-          }
-          this.showSnackBar()
-          if (!this.login || !this.password || !this.password.text) {
-              this.showSnackBar("заполните имя пользователя и пароль", "warning")
-              return
-          }
-          this.snackbar.show = false
-          this.error = false
-          try {
-              const res = await this.switchLogin('basic', this.login, this.password.text)
-              if (res && res.data && res.data.result) {
-                  this.$emit('click-login', true)
-              } else {
-                  this.error = true
-                  this.$emit('click-login', false)
+              switch (typeAuth.toLowerCase()) {
+                  case 'basic':
+                      return axios.post(this.url, {}, {
+                          headers: {'Authorization': `Basic ${credentials}`},
+                          withCredentials: true
+                      })
+                  default:
+                      return axios.post(this.url, {}, {
+                          headers: {'Authorization': `Basic ${credentials}`},
+                          withCredentials: true
+                      })
               }
-              
-          } catch (e) {
-              if (e && e.response && e.response.data && e.response.status) {
-                 this.errorAuth.show = true
-                if (e.response.status === 403) {
-                    this.errorAuth.text = `Пользователь ${this.login} не подтвердил адрес электронной почты. Необходимо перейти в электронную почту, указанную при регистрации и завершить регистрацию`
-                  }
-                  this.$emit('click-login', false)
+
+          },
+          onClosed() {
+              this.showAuth = false
+          },
+          onRegistration() {
+              this.showUserRegistration = true
+          },
+          onRecoveryAccount() {
+              this.showRecovery = true
+              this.showAuth = false
+          },
+          async onLogin() {
+              if (!this.url) {
+                  this.showSnackBar("не был передан обязательный параметр url в компонент Login")
                   return
               }
-              this.showSnackBar(`не удалось произвести авторизацию. ${e}`)
+              this.showSnackBar()
+              if (!this.login || !this.password || !this.password.text) {
+                  this.showSnackBar("заполните имя пользователя и пароль", "warning")
+                  return
+              }
+              this.snackbar.show = false
+              this.error = false
+              try {
+                  const res = await this.switchLogin('basic', this.login, this.password.text)
+                  if (res && res.data && res.data.result) {
+                      this.$emit('click-login', true)
+                  } else {
+                      this.error = true
+                      this.$emit('click-login', false)
+                  }
+
+              } catch (e) {
+                  if (e && e.response && e.response.data && e.response.status) {
+                      this.errorAuth.show = true
+                      if (e.response.status === 403) {
+                          this.errorAuth.text = `Пользователь ${this.login} не подтвердил адрес электронной почты. Необходимо перейти в электронную почту, указанную при регистрации и завершить регистрацию`
+                      }
+                      this.$emit('click-login', false)
+                      return
+                  }
+                  this.showSnackBar(`не удалось произвести авторизацию. ${e}`)
+              }
           }
         }
-      }
     }
 </script>
 
