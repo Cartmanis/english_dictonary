@@ -1,67 +1,50 @@
 <template>
-  <v-container v-show="show"  fluid fill-height>
+  <v-form ref="form">
     <v-snackbar
         v-model="snackbar.show"
         :color="snackbar.color"
         :multi-line=true
         :timeout="10000"
     >{{snackbar.text}}</v-snackbar>
-    <v-layout align-center justify-center>
-      <v-flex xs10 sm8 md5 lg4>
-        <v-card  class="elevation-12">
-          <v-toolbar>
-            <v-toolbar-title>{{options.name}}</v-toolbar-title>
-          </v-toolbar>
+    <v-dialog v-model="show" persistent max-width="500" height="50px">
+      <v-card>
+        <v-toolbar>
+          <v-toolbar-title class="headline">{{options.name}}</v-toolbar-title>
+        </v-toolbar>
           <v-card-text>
-            <v-form ref="form">
-              <v-text-field v-model="email" prepend-icon="email" label="Электронная почта"
-                            :rules="[rules.required, rules.email]"></v-text-field>
-            </v-form>
+              <v-layout wrap>
+                <v-flex xs12>
+                  <v-radio-group v-show ="isRadio" v-model="radioGroup">
+                    <v-radio label="по электронной почте" value="email"></v-radio>
+                    <v-radio label="по телефону" value="phone"></v-radio>
+                  </v-radio-group>
+                </v-flex>
+                <v-flex xs12 v-if = isEmail>
+                  <v-text-field v-model="email" prepend-icon="email" label="Электронная почта"
+                                :rules="[rules.required, rules.email]"></v-text-field>
+                </v-flex>
+                <v-flex xs12 v-else>
+                  <v-text-field v-model="phone" prepend-icon="phone" label="Мобильный телефон"
+                                :rules="[rules.required, rules.phone]"></v-text-field>
+                </v-flex>
+                <template v-if = "code">
+                  <v-flex xs8>
+                    <v-text-field  label="Введите код" v-model="code"></v-text-field>
+                  </v-flex>
+                  <v-flex xs4>
+                    <v-btn small color="primary">Отправить код</v-btn>
+                  </v-flex>
+                </template>
+              </v-layout>
           </v-card-text>
-          <v-card-actions>
-            <v-btn @click="onRecoveryPassword">Отправить пароль</v-btn>
-            <v-spacer></v-spacer>
-            <v-btn small flat @click = "onClosed" color="primary">Закрыть</v-btn>
-          </v-card-actions>
-        </v-card>
-      </v-flex>
-    </v-layout>
-  </v-container>
-<!--  <v-dialog v-model="showDialog" persistent max-width="700">-->
-<!--    <v-card>-->
-<!--      <v-card-title>-->
-<!--        <span class="headline">Восстановление акаунта</span>-->
-<!--      </v-card-title>-->
-<!--      <v-card-text>-->
-<!--        <v-form ref="form">-->
-<!--          <template>-->
-<!--            <v-label small text-color="primary">Для восстановления пароля, необходимо заполнить электронную почту,-->
-<!--              которая была указана при регистрации и нажать на кнопку "Отправить пароль". На эту почту будет выслан новый пароль.</v-label>-->
-<!--            <v-flex xs12>-->
-<!--              <v-text-field prepend-icon="email"-->
-<!--                            v-model="email"-->
-<!--                            label="Электронная почта"-->
-<!--                            :rules="[rules.required, rules.email]">-->
-<!--              </v-text-field>-->
-<!--            </v-flex>-->
-<!--            <v-btn @click="onRecoveryPassword">Отправить пароль</v-btn>-->
-<!--            <v-btn @click="showDialog=false;snackbar.show=false">Закрыть</v-btn>-->
-<!--            <template>-->
-<!--              <v-flex xs12 v-show = "recoveryPassword.showText">-->
-<!--                <v-label text-color ="success">На ваш электронный адрес отправлено письмо со ссылкой на подтверждение регистрации. Перейдите в почту для завершения регистрации.</v-label>-->
-<!--              </v-flex>-->
-<!--              <v-flex xs12 v-show="recoveryPassword.showBtn" >-->
-<!--                <a target="_blank" :href="recoveryPassword.url">-->
-<!--                  <v-btn @click="showDialog=false;snackbar.show=false"  color="primary">Перейти в почту</v-btn>-->
-<!--                </a>-->
-<!--              </v-flex>-->
-<!--            </template>-->
-<!--          </template>-->
-
-<!--        </v-form>-->
-<!--      </v-card-text>-->
-<!--    </v-card>-->
-<!--  </v-dialog>-->
+        <v-card-actions>
+          <v-btn small color="primary" @click="onRecoveryPassword">Получить код</v-btn>
+          <v-spacer></v-spacer>
+          <v-btn small flat @click = "onClosed" color="primary">Закрыть</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+  </v-form>
 </template>
 
 <script>
@@ -79,7 +62,10 @@
         },
         data () {
             return {
+                radioGroup: "email",
                 email: "",
+                phone: "",
+                code: "",
                 recovery: {
                   showText: false,
                   showBtn: false,
@@ -90,6 +76,10 @@
                     email: value => {
                         const pattern = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
                         return (!value || pattern.test(value))  || 'не корректный Email.'
+                    },
+                    phone: value => {
+                        const pattern =  /^(?!.{17,})(\s*)?(\+)?([- _():=+]?\d[- _():=+]?){11,14}(\s*)?/
+                        return (!value || pattern.test(value) || 'телефон должен соответсвовать: 8 111 222 33-44')
                     }
                 },
                 snackbar: {
@@ -128,6 +118,18 @@
             }
         },
         computed: {
+            isRadio () {
+              if (this.options && this.options.email && this.options.phone) {
+                  return true
+              }
+              return false
+            },
+            isEmail() {
+                if (this.radioGroup === "email") {
+                    return true
+                }
+                return false
+            },
             getEmail() {
                 if (!this.email) {
                     return ""
@@ -152,6 +154,7 @@
                 this.$emit('closed', false)
             },
             async onRecoveryPassword() {
+                //общий метод, который должен определить восстановление идет по почте или телефону
                 if (!this.validate) {
                     this.showSnackBar("Заполните корректно все поля формы", "warning")
                     return
@@ -160,28 +163,29 @@
                     this.showSnackBar("Опции для восстановления акаунта не были переданы")
                     return
                 }
-                const data = new FormData()
-                data.append("email", this.email)
-                try {
-                    const res = await axios.post(this.pas, data)
-                    if (res && res.data && res.data.error) {
-                        this.showSnackBar(res.data.error, "warning")
-                        return
-                    }
-                    this.snackbar.show = false
-                    this.recovery.showText = true
-                    let urlEmail = this.getEmail
-                    if (urlEmail) {
-                        this.recovery.showBtn = true
-                        this.recovery.url = urlEmail
-                    }
-                } catch (e) {
-                    if (e.response && e.response.data && e.response.data.error) {
-                        this.showSnackBar(e.response.data.error, "warning")
-                        return
-                    }
-                    this.showSnackBar(`не удалось восстановить пароль. Ошибка: ${e}`)
-                }
+                this.code = "7521"
+                // const data = new FormData()
+                // data.append("email", this.email)
+                // try {
+                //     const res = await axios.post(this.pas, data)
+                //     if (res && res.data && res.data.error) {
+                //         this.showSnackBar(res.data.error, "warning")
+                //         return
+                //     }
+                //     this.snackbar.show = false
+                //     this.recovery.showText = true
+                //     let urlEmail = this.getEmail
+                //     if (urlEmail) {
+                //         this.recovery.showBtn = true
+                //         this.recovery.url = urlEmail
+                //     }
+                // } catch (e) {
+                //     if (e.response && e.response.data && e.response.data.error) {
+                //         this.showSnackBar(e.response.data.error, "warning")
+                //         return
+                //     }
+                //     this.showSnackBar(`не удалось восстановить пароль. Ошибка: ${e}`)
+                // }
             }
         }
     }
