@@ -34,9 +34,16 @@ const routes = [
           showPassword: false,
           recoveryAccount: {
               name: 'Восстановление пароля',
-              url: `${baseUrl}:27333/api/v1/recovery_password`,
-              phone: '',
-              email: ''
+              phone: {
+                  label: 'Тел.',
+                  urlReceiveCode: '',
+                  urlConfirmCode: ''
+              },
+              email: {
+                  label: 'Эл. почта',
+                  urlReceiveCode: `${baseUrl}:27333/api/v1/recovery_password`,
+                  urlConfirmCode: `${baseUrl}:27333/api/v1/confirm_password`
+              }
           },
           registration: {
               nameForm: "Регистрация пользователя",

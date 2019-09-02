@@ -13,13 +13,13 @@
         </v-toolbar>
           <v-card-text>
               <v-layout wrap>
-                <v-flex xs12>
-                  <v-radio-group v-show ="isRadio" v-model="radioGroup">
+                <v-flex xs12 v-if ="isRadio">
+                  <v-radio-group  v-model="radioGroup">
                     <v-radio label="по электронной почте" value="email"></v-radio>
                     <v-radio label="по телефону" value="phone"></v-radio>
                   </v-radio-group>
                 </v-flex>
-                <v-flex xs12 v-if = isEmail>
+                <v-flex xs12 v-if = "radioGroup==='email'">
                   <v-text-field v-model="email" prepend-icon="email" label="Электронная почта"
                                 :rules="[rules.required, rules.email]"></v-text-field>
                 </v-flex>
@@ -32,7 +32,7 @@
                     <v-text-field  label="Введите код" v-model="code"></v-text-field>
                   </v-flex>
                   <v-flex xs4>
-                    <v-btn small color="primary">Отправить код</v-btn>
+                    <v-btn small color="success">Отправить код</v-btn>
                   </v-flex>
                 </template>
               </v-layout>
@@ -62,7 +62,7 @@
         },
         data () {
             return {
-                radioGroup: "email",
+                radioGroup: "",
                 email: "",
                 phone: "",
                 code: "",
@@ -119,9 +119,10 @@
         },
         computed: {
             isRadio () {
-              if (this.options && this.options.email && this.options.phone) {
-                  return true
-              }
+                if (this.options && this.options.email && this.options.email.urlReceiveCode && this.options.email.urlConfirmCode
+                    && this.options.phone && this.options.phone.urlReceiveCode && this.options.phone.urlConfirmCode) {
+                      return true
+                }
               return false
             },
             isEmail() {
@@ -154,6 +155,7 @@
                 this.$emit('closed', false)
             },
             async onRecoveryPassword() {
+                this.snackbar.show = false
                 //общий метод, который должен определить восстановление идет по почте или телефону
                 if (!this.validate) {
                     this.showSnackBar("Заполните корректно все поля формы", "warning")
