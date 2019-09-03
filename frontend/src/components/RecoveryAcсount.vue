@@ -19,7 +19,7 @@
                     <v-radio label="по телефону" value="phone"></v-radio>
                   </v-radio-group>
                 </v-flex>
-                <v-flex xs12 v-if = "radioGroup==='email'">
+                <v-flex xs12 v-if = "isEmail">
                   <v-text-field v-model="email" prepend-icon="email" label="Электронная почта"
                                 :rules="[rules.required, rules.email]"></v-text-field>
                 </v-flex>
@@ -62,7 +62,7 @@
         },
         data () {
             return {
-                radioGroup: "",
+                radioGroup: "email",
                 email: "",
                 phone: "",
                 code: "",
@@ -126,10 +126,16 @@
               return false
             },
             isEmail() {
-                if (this.radioGroup === "email") {
-                    return true
+                if (this.isRadio) {
+                    if (this.radioGroup === "email") {
+                        return true
+                    }
+                    return  false
                 }
-                return false
+                if (this.options && this.options.phone && this.options.phone.urlReceiveCode && this.options.phone.urlConfirmCode) {
+                    return false
+                }
+                return true
             },
             getEmail() {
                 if (!this.email) {
@@ -165,7 +171,6 @@
                     this.showSnackBar("Опции для восстановления акаунта не были переданы")
                     return
                 }
-                this.code = "7521"
                 // const data = new FormData()
                 // data.append("email", this.email)
                 // try {
