@@ -119,8 +119,10 @@
         },
         computed: {
             isRadio () {
-                if (this.options && this.options.email && this.options.email.urlReceiveCode && this.options.email.urlConfirmCode
-                    && this.options.phone && this.options.phone.urlReceiveCode && this.options.phone.urlConfirmCode) {
+                if (this.options && this.options.email && this.options.email.name &&
+                    this.options.email.urlReceiveCode && this.options.email.urlConfirmCode
+                    && this.options.phone && this.options.phone.name &&
+                    this.options.phone.urlReceiveCode && this.options.phone.urlConfirmCode) {
                       return true
                 }
               return false
@@ -132,10 +134,23 @@
                     }
                     return  false
                 }
-                if (this.options && this.options.phone && this.options.phone.urlReceiveCode && this.options.phone.urlConfirmCode) {
+                if (this.options && this.options.phone && this.options.phone.name &&
+                    this.options.phone.urlReceiveCode && this.options.phone.urlConfirmCode) {
                     return false
                 }
                 return true
+            },
+            getParameterName() {
+                if (this.isRadio) {
+
+                }
+              if (this.options && this.options.phone && this.options.phone.name) {
+                  return this.options.phone.name
+              }
+              if (this.options && this.options.email && this.options.email.name) {
+                  return this.options.email.name
+              }
+              return ""
             },
             getEmail() {
                 if (!this.email) {
