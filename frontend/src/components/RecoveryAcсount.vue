@@ -14,31 +14,39 @@
           <v-card-text>
               <v-layout wrap>
                 <v-flex xs12 v-if ="isRadio">
-                  <v-radio-group  v-model="radioGroup">
+                  <v-radio-group label="выберите способ восстановления"  v-model="radioGroup">
                     <v-radio label="по электронной почте" value="email"></v-radio>
                     <v-radio label="по телефону" value="phone"></v-radio>
                   </v-radio-group>
                 </v-flex>
                 <v-flex xs12 v-if = "isEmail">
-                  <v-text-field v-model="email" prepend-icon="email" label="Электронная почта"
+                  <v-text-field v-model="email" prepend-icon="email" :label="labelEmail"
                                 :rules="[rules.required, rules.email]"></v-text-field>
                 </v-flex>
                 <v-flex xs12 v-else>
-                  <v-text-field v-model="phone" prepend-icon="phone" label="Мобильный телефон"
+                  <v-text-field v-model="phone" prepend-icon="phone" :label="labelPhone"
                                 :rules="[rules.required, rules.phone]"></v-text-field>
                 </v-flex>
-                <template v-if = "code">
+                <template v-if = "reciveSuccess">
                   <v-flex xs8>
-                    <v-text-field  label="Введите код" v-model="code"></v-text-field>
+                    <v-text-field prepend-icon="vpn_key"  label="Введите код" v-model="code" :rules="[rules.required]"></v-text-field>
                   </v-flex>
                   <v-flex xs4>
-                    <v-btn small color="success">Отправить код</v-btn>
+                    <v-btn small color="primary" @click="onConfirmRecovery">Отправить код</v-btn>
+                  </v-flex>
+                  <v-flex xs8 v-if ="recovery.showText">
+                    <v-label>{{showTextRecovery}}</v-label>
+                  </v-flex>
+                  <v-flex xs4 v-if = "recovery.showBtn">
+                    <a target="_blank" :href="getEmail">
+                      <v-btn small @click="onClosed"  color="primary">Перейти в почту</v-btn>
+                    </a>
                   </v-flex>
                 </template>
               </v-layout>
           </v-card-text>
         <v-card-actions>
-          <v-btn small color="primary" @click="onRecoveryPassword">Получить код</v-btn>
+          <v-btn small color="primary" @click="onReceiveCode">Получить код</v-btn>
           <v-spacer></v-spacer>
           <v-btn small flat @click = "onClosed" color="primary">Закрыть</v-btn>
         </v-card-actions>
@@ -66,10 +74,12 @@
                 email: "",
                 phone: "",
                 code: "",
+                opts: {},
+                reciveSuccess: false,
                 recovery: {
                   showText: false,
                   showBtn: false,
-                  url: ""
+                  goEmail : ""
                 },
                 rules: {
                     required: value => !!value || 'поле не должно быть пустым',
@@ -119,9 +129,9 @@
         },
         computed: {
             isRadio () {
-                if (this.options && this.options.email && this.options.email.name &&
+                if (this.options && this.options.email && this.options.email.nameParameter &&
                     this.options.email.urlReceiveCode && this.options.email.urlConfirmCode
-                    && this.options.phone && this.options.phone.name &&
+                    && this.options.phone && this.options.phone.nameParameter &&
                     this.options.phone.urlReceiveCode && this.options.phone.urlConfirmCode) {
                       return true
                 }
@@ -134,23 +144,43 @@
                     }
                     return  false
                 }
-                if (this.options && this.options.phone && this.options.phone.name &&
+                if (this.options && this.options.phone && this.options.phone.nameParameter &&
                     this.options.phone.urlReceiveCode && this.options.phone.urlConfirmCode) {
                     return false
                 }
                 return true
             },
-            getParameterName() {
-                if (this.isRadio) {
-
+            labelEmail() {
+              if (this.options && this.options.email && this.options.email.label) {
+                  return this.options.email.label
+              }
+              return "Email"
+            },
+            labelPhone() {
+                if (this.options && this.options.phone && this.options.phone.label) {
+                    return this.options.phone.label
                 }
-              if (this.options && this.options.phone && this.options.phone.name) {
-                  return this.options.phone.name
+                return "Phone"
+            },
+            getOptions() {
+              if (this.isEmail && this.options.email && this.options.email.nameParameter &&
+                  this.options.email.urlReceiveCode && this.options.email.urlConfirmCode) {
+                  return this.options.email
               }
-              if (this.options && this.options.email && this.options.email.name) {
-                  return this.options.email.name
+              if (!this.isEmail && this.options.phone && this.options.phone.nameParameter &&
+                this.options.phone.urlReceiveCode && this.options.phone.urlConfirmCode) {
+                  return this.options.phone
               }
-              return ""
+              return null
+            },
+            getValue() {
+                if (this.isEmail && this.email) {
+                    return this.email
+                }
+                if (!this.isEmail && this.phone) {
+                    return this.phone
+                }
+                return ""
             },
             getEmail() {
                 if (!this.email) {
@@ -161,6 +191,15 @@
                     return ""
                 }
                 return this.mapEmail.get(arr[1])
+            },
+            showTextRecovery() {
+              if (this.isEmail && this.options && this.options.email && this.options.email.urlConfirmCode) {
+                  return "Новый пароль отправлен на электронную почту"
+              }
+              if (!this.isEmail && this.options && this.options.phone && this.options.phone.urlConfirmCode) {
+                  return "Новый пароль отправлен на телефон"
+              }
+              return ""
             },
             validate () {
                 return this.$refs.form.validate()
@@ -175,39 +214,77 @@
             onClosed () {
                 this.$emit('closed', false)
             },
-            async onRecoveryPassword() {
+            //общий метод, который должен определить восстановление идет по почте или телефону
+            async onReceiveCode() {
                 this.snackbar.show = false
-                //общий метод, который должен определить восстановление идет по почте или телефону
                 if (!this.validate) {
                     this.showSnackBar("Заполните корректно все поля формы", "warning")
                     return
                 }
-                if (!this.options) {
-                    this.showSnackBar("Опции для восстановления акаунта не были переданы")
+                this.opts = this.getOptions
+                if (!this.opts) {
+                    this.showSnackBar("не были переданы опции электронной почты или телефона для восстановления акаунта", "warning")
                     return
                 }
-                // const data = new FormData()
-                // data.append("email", this.email)
-                // try {
-                //     const res = await axios.post(this.pas, data)
-                //     if (res && res.data && res.data.error) {
-                //         this.showSnackBar(res.data.error, "warning")
-                //         return
-                //     }
-                //     this.snackbar.show = false
-                //     this.recovery.showText = true
-                //     let urlEmail = this.getEmail
-                //     if (urlEmail) {
-                //         this.recovery.showBtn = true
-                //         this.recovery.url = urlEmail
-                //     }
-                // } catch (e) {
-                //     if (e.response && e.response.data && e.response.data.error) {
-                //         this.showSnackBar(e.response.data.error, "warning")
-                //         return
-                //     }
-                //     this.showSnackBar(`не удалось восстановить пароль. Ошибка: ${e}`)
-                // }
+                const val = this.getValue
+                if (!val) {
+                    this.showSnackBar("нет значения электронной почты или телефона для восстановления акаунта")
+                    return
+                }
+                const data = new FormData()
+                data.append(this.opts.nameParameter, val)
+                this.reciveSuccess = true
+                try {
+                    const res = await axios.post(this.opts.urlReceiveCode, data)
+                    if (res && res.data && res.data.error) {
+                        this.showSnackBar(res.data.error, "warning")
+                        return
+                    }
+                    this.snackbar.show = false
+                    this.recovery.showText = true
+                    let urlEmail = this.getEmail
+                    if (urlEmail) {
+                        this.recovery.showBtn = true
+                        this.recovery.url = urlEmail
+                    }
+                } catch (e) {
+                    if (e.response && e.response.data && e.response.data.error) {
+                        this.showSnackBar(e.response.data.error, "warning")
+                        return
+                    }
+                    this.showSnackBar(`не удалось восстановить пароль. Ошибка: ${e}`)
+                }
+            },
+            async onConfirmRecovery() {
+                this.snackbar.show = false
+                if (!this.validate) {
+                    this.showSnackBar("Заполните корректно все поля формы", "warning")
+                    return
+                }
+                if (!this.opts) {
+                    this.showSnackBar("не были переданы опции электронной почты или телефона для восстановления акаунта", "warning")
+                    return
+                }
+                const data = new FormData()
+                data.append("code", this.code)
+                this.recovery.showText = true
+                if (this.isEmail && this.getEmail) {
+                    this.recovery.showBtn = true
+                }
+                try {
+                    const res = await axios.post(this.opts.urlConfirmCode, data)
+                    if (res && res.data && res.data.error) {
+                        this.showSnackBar(res.data.error, "warning")
+                        return
+                    }
+                    this.recovery.showText = true
+                } catch (e) {
+                    if (e.response && e.response.data && e.response.data.error) {
+                        this.showSnackBar(e.response.data.error, "warning")
+                        return
+                    }
+                    this.showSnackBar(`не удалось восстановить акаунт: ${e}`)
+                }
             }
         }
     }

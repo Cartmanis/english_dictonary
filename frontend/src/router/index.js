@@ -36,13 +36,13 @@ const routes = [
               name: 'Восстановление пароля',
               phone: {
                   label: 'Тел.',
-                  name: 'user_phone',
-                  urlReceiveCode: `${baseUrl}:27333/api/v1/recovery_password`,
-                  urlConfirmCode: `${baseUrl}:27333/api/v1/confirm_password`
+                  nameParameter: 'user_phone',
+                  urlReceiveCode: `${baseUrl}:27333/api/v1/recovery_password_phone`,
+                  urlConfirmCode: `${baseUrl}:27333/api/v1/confirm_password_phone`
               },
               email: {
                   label: 'Эл. почта',
-                  name: 'user_email',
+                  nameParameter: 'user_email',
                   urlReceiveCode: `${baseUrl}:27333/api/v1/recovery_password`,
                   urlConfirmCode: `${baseUrl}:27333/api/v1/confirm_password`
               }
